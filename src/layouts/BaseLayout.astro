@@ -1,0 +1,64 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_NAME, otherLang, type Lang } from '../i18n/ui';
+import '../styles/global.css';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Ruta equivalente en el otro idioma. Solo la necesitan los artículos. */
+  altPath?: string;
+  /** true cuando no existe traducción, para no declarar un hreflang falso. */
+  hasTranslation?: boolean;
+}
+
+const { lang, title, description, altPath, hasTranslation = true } = Astro.props;
+
+const fullTitle = title === SITE_NAME ? title : `${title} — ${SITE_NAME}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// hreflang: le dice a Google que esta página existe en otro idioma,
+// para que no las trate como contenido duplicado.
+const resolvedAlt =
+  altPath ?? Astro.url.pathname.replace(/^\/(es|en)(?=\/|$)/, `/${otherLang(lang)}`);
+const altUrl = new URL(resolvedAlt, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    {hasTranslation && <link rel="alternate" hreflang={otherLang(lang)} href={altUrl} />}
+    <link rel="alternate" hreflang="x-default" href={new URL('/es/', Astro.site)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph: cómo se ve al compartir el enlace -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <Header lang={lang} altPath={resolvedAlt} />
+    <main id="content">
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

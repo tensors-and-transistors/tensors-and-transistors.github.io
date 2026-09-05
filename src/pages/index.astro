@@ -1,0 +1,37 @@
+---
+// Página raíz: no muestra contenido, solo decide el idioma.
+// Lee el idioma del navegador y redirige a /es/ o /en/.
+// Como el sitio es estático, esto ocurre en el navegador del visitante.
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tensors &amp; Transistors</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="robots" content="noindex" />
+
+    <script is:inline>
+      (function () {
+        var nav = navigator.language || navigator.userLanguage || 'es';
+        var lang = nav.toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
+        // replace() en vez de href: no deja esta página en el historial,
+        // así el botón "atrás" no queda atrapado en un bucle.
+        window.location.replace('/' + lang + '/');
+      })();
+    </script>
+
+    <!-- Si el JavaScript está desactivado, cae a español tras 1 segundo. -->
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=/es/" />
+    </noscript>
+  </head>
+  <body style="background:#ffffff;color:#000000;font-family:system-ui,sans-serif">
+    <p style="padding:2rem">
+      <a href="/es/" style="color:#0e7490">Español</a> ·
+      <a href="/en/" style="color:#0e7490">English</a>
+    </p>
+  </body>
+</html>

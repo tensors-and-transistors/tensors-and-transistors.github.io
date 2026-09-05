@@ -1,0 +1,44 @@
+---
+import { SECTIONS, SITE_NAME, t, otherLang, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Destino del botón de idioma. Si no se pasa, se intercambia el prefijo. */
+  altPath?: string;
+}
+
+const { lang, altPath } = Astro.props;
+
+// Por defecto: la misma ruta con el prefijo de idioma cambiado.
+// Los artículos pasan `altPath` explícito, porque su slug cambia con el idioma.
+const path = Astro.url.pathname;
+const swapped = altPath ?? path.replace(/^\/(es|en)(?=\/|$)/, `/${otherLang(lang)}`);
+
+const navItems = SECTIONS.map((s) => ({
+  href: `/${lang}/${s}/`,
+  label: t(lang, `nav.${s}` as 'nav.blog'),
+}));
+
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href={`/${lang}/`}>
+      Tensors <span class="amp">&amp;</span> Transistors
+    </a>
+
+    <nav class="site-nav" aria-label={SITE_NAME}>
+      {
+        navItems.map((item) => (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="lang-toggle" href={swapped} aria-label={t(lang, 'lang.switchLabel')}>
+        {t(lang, 'lang.switch')}
+      </a>
+    </nav>
+  </div>
+</header>

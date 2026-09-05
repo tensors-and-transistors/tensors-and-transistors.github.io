@@ -1,0 +1,93 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { SECTIONS, t, formatDate, type Lang, type Section } from '../../../i18n/ui';
+
+// Una página por cada archivo .md de cada sección.
+// El identificador del archivo es "<idioma>/<slug>", así que el idioma
+// sale del propio archivo y no hay que declararlo dos veces.
+export async function getStaticPaths() {
+  const paths = [];
+
+  for (const section of SECTIONS) {
+    const entries = (await getCollection(section)).filter((e) => !e.data.draft);
+
+    // Índice de traducciones: "idioma|clave" -> slug.
+    // Permite que el botón de idioma salte al artículo equivalente
+    // aunque el slug sea distinto en cada idioma.
+    const byKey = new Map<string, string>();
+    for (const e of entries) {
+      const [l, ...rest] = e.id.split('/');
+      if (e.data.translationKey) byKey.set(`${l}|${e.data.translationKey}`, rest.join('/'));
+    }
+
+    for (const entry of entries) {
+      const [lang, ...rest] = entry.id.split('/');
+      const other = lang === 'es' ? 'en' : 'es';
+      const twin = entry.data.translationKey
+        ? byKey.get(`${other}|${entry.data.translationKey}`)
+        : undefined;
+
+      paths.push({
+        params: { lang, section, slug: rest.join('/') },
+        props: {
+          entry,
+          // Si hay traducción, al artículo gemelo.
+          // Si no, al índice de la sección en el otro idioma: mejor que un 404.
+          altPath: twin ? `/${other}/${section}/${twin}/` : `/${other}/${section}/`,
+          hasTranslation: Boolean(twin),
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { entry, altPath, hasTranslation } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const section = Astro.params.section as Section;
+const { Content } = await render(entry);
+
+const sectionTitle = t(lang, `section.${section}.title` as 'section.blog.title');
+---
+
+<BaseLayout
+  lang={lang}
+  title={entry.data.title}
+  description={entry.data.description}
+  altPath={altPath}
+  hasTranslation={hasTranslation}
+>
+  <article>
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime={entry.data.pubDate.toISOString()}>
+          {t(lang, 'post.published')} {formatDate(entry.data.pubDate, lang)}
+        </time>
+        {entry.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
+      </div>
+
+      <h1>{entry.data.title}</h1>
+      <p class="description">{entry.data.description}</p>
+
+      {
+        entry.data.updatedDate && (
+          <p class="post-meta" style="margin-top:1rem">
+            {t(lang, 'post.updated')} {formatDate(entry.data.updatedDate, lang)}
+          </p>
+        )
+      }
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <footer class="post-footer">
+      <a class="back-link" href={`/${lang}/${section}/`}>
+        ← {t(lang, 'post.back')} {sectionTitle.toLowerCase()}
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
