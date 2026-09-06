@@ -1,18 +1,9 @@
 ---
-import { t, type Lang } from '../i18n/ui';
-
-interface Props {
-  lang: Lang;
-}
-
-const { lang } = Astro.props;
 const year = new Date().getFullYear();
-const repo = 'https://github.com/tensors-and-transistors';
 ---
 
 <footer class="site-footer">
   <div class="wrap">
-    <span>&copy; {year} Tensors &amp; Transistors — {t(lang, 'footer.built')}</span>
-    <a href={repo} rel="noopener">{t(lang, 'footer.source')}</a>
+    <span>&copy; {year} Tensors &amp; Transistors</span>
   </div>
 </footer>

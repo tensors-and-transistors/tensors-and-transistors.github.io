@@ -20,7 +20,7 @@ export const ui = {
 
     'nav.blog': 'Blog técnico',
     'nav.tutorials': 'Tutoriales',
-    'nav.papers': 'Papers',
+    'nav.papers': "Paper's summary",
     'nav.home': 'Inicio',
 
     'section.blog.title': 'Blog técnico',
@@ -54,9 +54,9 @@ export const ui = {
     'site.intro':
       'Rigorous technical writing on embedded systems, machine learning, and everything that happens where code touches silicon. No hype, no courses to sell.',
 
-    'nav.blog': 'Blog',
+    'nav.blog': 'Technical blog',
     'nav.tutorials': 'Tutorials',
-    'nav.papers': 'Papers',
+    'nav.papers': "Paper's summary",
     'nav.home': 'Home',
 
     'section.blog.title': 'Technical blog',

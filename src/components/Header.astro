@@ -24,8 +24,8 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
 
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href={`/${lang}/`}>
-      Tensors <span class="amp">&amp;</span> Transistors
+    <a class="brand" href={`/${lang}/`} aria-label={SITE_NAME}>
+      <img src="/tnt_logo.svg" alt={SITE_NAME} width="1882" height="666" />
     </a>
 
     <nav class="site-nav" aria-label={SITE_NAME}>
@@ -36,9 +36,46 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
           </a>
         ))
       }
-      <a class="lang-toggle" href={swapped} aria-label={t(lang, 'lang.switchLabel')}>
-        {t(lang, 'lang.switch')}
-      </a>
+      <!-- Toggle de idioma: ambas opciones siempre visibles, la activa resaltada. -->
+      <span class="lang-switch">
+        <a
+          class:list={['lang-opt', { active: lang === 'es' }]}
+          href={lang === 'es' ? path : swapped}
+          hreflang="es"
+          aria-current={lang === 'es' ? 'true' : undefined}>ES</a
+        ><a
+          class:list={['lang-opt', { active: lang === 'en' }]}
+          href={lang === 'en' ? path : swapped}
+          hreflang="en"
+          aria-current={lang === 'en' ? 'true' : undefined}>EN</a
+        >
+      </span>
+
+      <!-- Nota sobre los idiomas. Se muestra al pasar el cursor y también
+           al enfocar con el teclado o tocar en móvil. -->
+      <span class="lang-note">
+        <button
+          type="button"
+          class="lang-note-btn"
+          aria-label={t(lang, 'lang.noteLabel')}
+          aria-describedby="lang-note-text"
+        >
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="10" cy="6" r="1.15" fill="currentColor" />
+            <path
+              d="M10 9v6"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              fill="none"
+            />
+          </svg>
+        </button>
+        <span class="lang-note-tip" id="lang-note-text" role="tooltip">
+          {t(lang, 'lang.note')}
+        </span>
+      </span>
     </nav>
   </div>
 </header>

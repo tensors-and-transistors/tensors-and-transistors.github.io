@@ -45,7 +45,7 @@
 
   /* Medidas */
   --measure: 82ch; /* ancho máximo del texto de un artículo */
-  --page: 76rem; /* ancho máximo de la página */
+  --page: 68rem; /* ancho máximo de la página (1088px) */
   --radius: 10px;
 }
 
@@ -160,17 +160,23 @@ main {
 }
 
 .brand {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  color: var(--header-text);
-  text-decoration: none;
-  white-space: nowrap;
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
 }
 
-.brand .amp {
-  color: var(--header-accent);
+/* El SVG del logo ya viene en blanco: se ve sobre la cabecera negra.
+   Solo fijamos la altura; el ancho se calcula solo. */
+.brand img {
+  height: 3.25rem;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 40rem) {
+  .brand img {
+    height: 2.4rem;
+  }
 }
 
 .site-nav {
@@ -199,19 +205,100 @@ main {
   border-bottom-color: var(--header-accent);
 }
 
-.lang-toggle {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--header-muted) !important;
+/* Toggle de idioma: dos segmentos, el activo relleno en cian.
+   Misma tipografía y tamaño que el resto de la navegación. */
+.lang-switch {
+  display: inline-flex;
   border: 1px solid var(--header-border);
   border-radius: 999px;
-  padding: 0.2rem 0.7rem !important;
-  border-bottom-width: 1px !important;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
-.lang-toggle:hover {
-  border-color: var(--header-accent);
-  color: var(--header-accent) !important;
+.site-nav .lang-opt {
+  padding: 0.35rem 0.7rem !important;
+  color: var(--header-text) !important;
+  text-decoration: none;
+  border-bottom: none !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.site-nav .lang-opt:not(.active):hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.site-nav .lang-opt.active {
+  background: var(--header-accent);
+  color: #000000 !important;
+}
+
+/* Icono de información con nota emergente sobre los idiomas. */
+.lang-note {
+  position: relative;
+  display: inline-flex;
+  margin-inline-start: -0.5rem;
+}
+
+.lang-note-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--header-text);
+  cursor: help;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+.lang-note-btn:hover,
+.lang-note-btn:focus-visible {
+  opacity: 1;
+}
+
+.lang-note-btn svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+}
+
+.lang-note-tip {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 60;
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 3rem));
+  padding: 0.7rem 0.85rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+
+  /* Oculta pero accesible: se revela al pasar el cursor o enfocar. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-3px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.lang-note:hover .lang-note-tip,
+.lang-note:focus-within .lang-note-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 /* ---------- Portada ---------- */
