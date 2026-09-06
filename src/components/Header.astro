@@ -39,15 +39,15 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
       <!-- Toggle de idioma: ambas opciones siempre visibles, la activa resaltada. -->
       <span class="lang-switch">
         <a
-          class:list={['lang-opt', { active: lang === 'es' }]}
-          href={lang === 'es' ? path : swapped}
-          hreflang="es"
-          aria-current={lang === 'es' ? 'true' : undefined}>ES</a
-        ><a
           class:list={['lang-opt', { active: lang === 'en' }]}
           href={lang === 'en' ? path : swapped}
           hreflang="en"
           aria-current={lang === 'en' ? 'true' : undefined}>EN</a
+        ><a
+          class:list={['lang-opt', { active: lang === 'es' }]}
+          href={lang === 'es' ? path : swapped}
+          hreflang="es"
+          aria-current={lang === 'es' ? 'true' : undefined}>ES</a
         >
       </span>
 
