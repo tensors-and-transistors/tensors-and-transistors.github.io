@@ -63,8 +63,8 @@
 :root {
   /* --- Superficies claras (todo el cuerpo del sitio) --- */
   --bg: #ffffff;
-  --bg-elev: #f7f9fb;
-  --bg-code: #f7f9fb;
+  --bg-elev: #ffffff;
+  --bg-code: #ffffff;
 
   /* Bordes */
   --border: #e2e8f0;
