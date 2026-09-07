@@ -8,6 +8,58 @@
    sobre el panel negro.
    ========================================================= */
 
+/* ---------------------------------------------------------
+   Inter — fuente variable, alojada en nuestro propio servidor.
+   Un solo archivo cubre TODOS los pesos (100 a 900), así que
+   podemos usar títulos gruesos y texto fino sin descargas extra.
+   El navegador solo baja el archivo cuyo `unicode-range` necesita:
+   con español e inglés basta el bloque `latin`.
+   --------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-wght-italic.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-ext-wght-italic.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root {
   /* --- Superficies claras (todo el cuerpo del sitio) --- */
   --bg: #ffffff;
@@ -38,8 +90,14 @@
   --header-accent: #22d3ee;
 
   /* Tipografía */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Pesos. Al ser fuente variable, cualquier valor intermedio es válido. */
+  --weight-body: 370; /* texto: delgado */
+  --weight-nav: 450;
+  --weight-strong: 620;
+  --weight-heading: 760; /* títulos: grueso */
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
@@ -80,11 +138,27 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
+  font-weight: var(--weight-body);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* Contraste tipográfico: títulos gruesos sobre texto delgado. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--weight-heading);
+}
+
+strong,
+b {
+  font-weight: var(--weight-strong);
 }
 
 img,
@@ -156,7 +230,8 @@ main {
   align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
-  padding-block: 0.9rem;
+  /* Poco margen vertical: así el logo puede crecer sin engordar la barra. */
+  padding-block: 0.7rem;
 }
 
 .brand {
@@ -168,14 +243,14 @@ main {
 /* El SVG del logo ya viene en blanco: se ve sobre la cabecera negra.
    Solo fijamos la altura; el ancho se calcula solo. */
 .brand img {
-  height: 3.25rem;
+  height: 3rem;
   width: auto;
   display: block;
 }
 
 @media (max-width: 40rem) {
   .brand img {
-    height: 2.4rem;
+    height: 2.2rem;
   }
 }
 
@@ -191,6 +266,7 @@ main {
   color: var(--header-muted);
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: var(--weight-nav);
   padding-block: 0.25rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;

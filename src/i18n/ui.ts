@@ -21,7 +21,7 @@ export const ui = {
     'nav.blog': 'Blog técnico',
     'nav.tutorials': 'Tutoriales',
     'nav.papers': "Paper's summary",
-    'nav.home': 'Inicio',
+    'nav.home': 'Home',
 
     'section.blog.title': 'Blog técnico',
     'section.blog.desc':
@@ -44,6 +44,9 @@ export const ui = {
 
     'lang.switch': 'English',
     'lang.switchLabel': 'Ver esta página en inglés',
+    'lang.noteLabel': 'Sobre los idiomas',
+    'lang.note':
+      'Te sugerimos revisar ambos idiomas: cada versión está curada por separado, no son traducciones automáticas.',
 
     'home.explore': 'Explora',
     'footer.built': 'Construido en abierto.',
@@ -80,6 +83,9 @@ export const ui = {
 
     'lang.switch': 'Español',
     'lang.switchLabel': 'View this page in Spanish',
+    'lang.noteLabel': 'About languages',
+    'lang.note':
+      'We suggest checking both languages: each version is curated separately, not machine-translated.',
 
     'home.explore': 'Explore',
     'footer.built': 'Built in the open.',

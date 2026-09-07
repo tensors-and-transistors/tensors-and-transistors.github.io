@@ -14,12 +14,19 @@ const { lang, altPath } = Astro.props;
 const path = Astro.url.pathname;
 const swapped = altPath ?? path.replace(/^\/(es|en)(?=\/|$)/, `/${otherLang(lang)}`);
 
-const navItems = SECTIONS.map((s) => ({
-  href: `/${lang}/${s}/`,
-  label: t(lang, `nav.${s}` as 'nav.blog'),
-}));
+const navItems = [
+  // "Home" solo se marca activo en la portada exacta; las secciones
+  // también cuando estás dentro de uno de sus artículos.
+  { href: `/${lang}/`, label: t(lang, 'nav.home'), exact: true },
+  ...SECTIONS.map((s) => ({
+    href: `/${lang}/${s}/`,
+    label: t(lang, `nav.${s}` as 'nav.blog'),
+    exact: false,
+  })),
+];
 
-const isCurrent = (href: string) => path === href || path.startsWith(href);
+const isCurrent = (item: { href: string; exact: boolean }) =>
+  item.exact ? path === item.href : path.startsWith(item.href);
 ---
 
 <header class="site-header">
@@ -31,7 +38,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
     <nav class="site-nav" aria-label={SITE_NAME}>
       {
         navItems.map((item) => (
-          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+          <a href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
             {item.label}
           </a>
         ))
