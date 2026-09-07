@@ -93,11 +93,12 @@
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  /* Pesos. Al ser fuente variable, cualquier valor intermedio es válido. */
-  --weight-body: 370; /* texto: delgado */
-  --weight-nav: 450;
-  --weight-strong: 620;
-  --weight-heading: 760; /* títulos: grueso */
+  /* Pesos de Inter. Al ser fuente variable, cualquier valor es válido. */
+  --weight-body: 200; /* ExtraLight: texto */
+  --weight-nav: 300; /* Light: pestañas */
+  --weight-strong: 400; /* Regular: negritas dentro del texto */
+  --weight-h1: 500; /* Medium */
+  --weight-h2: 400; /* Regular */
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
@@ -139,26 +140,41 @@ body {
   font-family: var(--font-sans);
   font-size: 1.0625rem;
   font-weight: var(--weight-body);
-  line-height: 1.7;
+  /* Espaciado entre letras para todo el sitio. Los elementos que
+     necesitan otro valor (títulos, "EXPLORA") lo redefinen abajo. */
+  letter-spacing: -0.02em;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* Contraste tipográfico: títulos gruesos sobre texto delgado. */
-h1,
+/* Jerarquía tipográfica: H1 Medium, H2 y siguientes Regular. */
+h1 {
+  font-weight: var(--weight-h1);
+}
+
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-weight: var(--weight-heading);
+  font-weight: var(--weight-h2);
 }
 
 strong,
 b {
   font-weight: var(--weight-strong);
+}
+
+/* El monoespaciado depende de que cada carácter ocupe su ancho exacto:
+   apretarlo rompe la alineación de los bloques de código. */
+code,
+pre,
+kbd,
+samp {
+  letter-spacing: normal;
 }
 
 img,
@@ -225,6 +241,26 @@ main {
   z-index: 50;
 }
 
+/* Franja de color sobre la cabecera. Arte nativo: un solo degradado
+   CSS, sin imagen ni desenfoque. Los extremos mueren en negro para
+   que no choque contra los bordes de la pantalla. */
+.site-header::before {
+  content: '';
+  display: block;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    #000000 0%,
+    #0a1a5c 9%,
+    #1450c8 26%,
+    #22d3ee 47%,
+    #2fe0a8 64%,
+    #1450c8 82%,
+    #0a1a5c 92%,
+    #000000 100%
+  );
+}
+
 .site-header .wrap {
   display: flex;
   align-items: center;
@@ -267,6 +303,8 @@ main {
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: var(--weight-nav);
+  /* Negativo = letras más juntas. Ver la escala en el README del proyecto. */
+  letter-spacing: -0.02em;
   padding-block: 0.25rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
@@ -291,6 +329,8 @@ main {
   font-family: var(--font-sans);
   font-size: 0.9rem;
   line-height: 1;
+  /* Separa el selector de idioma de la última pestaña: son cosas distintas. */
+  margin-inline-start: 1rem;
 }
 
 .site-nav .lang-opt {
@@ -306,7 +346,7 @@ main {
 }
 
 .site-nav .lang-opt.active {
-  background: var(--header-accent);
+  background: #ffffff;
   color: #000000 !important;
 }
 
@@ -314,7 +354,8 @@ main {
 .lang-note {
   position: relative;
   display: inline-flex;
-  margin-inline-start: -0.5rem;
+  /* Anula casi todo el `gap` del menú: el icono pertenece al toggle. */
+  margin-inline-start: -1.05rem;
 }
 
 .lang-note-btn {
@@ -356,9 +397,10 @@ main {
   color: var(--text);
   border: 1px solid var(--border-strong);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   font-family: var(--font-sans);
   font-size: 0.8rem;
+  /* A 12.8px los pesos finos se deshacen: este texto va en Regular. */
+  font-weight: 400;
   line-height: 1.5;
   text-align: left;
   white-space: normal;
@@ -570,20 +612,20 @@ main {
 }
 
 .prose > * + * {
-  margin-top: 1.4em;
+  margin-top: 1.1em;
 }
 
 .prose h2 {
   font-size: 1.5rem;
   letter-spacing: -0.015em;
-  margin-top: 2.5em;
-  padding-top: 0.5em;
+  margin-top: 2em;
+  padding-top: 0.25em;
   line-height: 1.25;
 }
 
 .prose h3 {
   font-size: 1.2rem;
-  margin-top: 2em;
+  margin-top: 1.6em;
   line-height: 1.3;
 }
 
@@ -631,7 +673,7 @@ main {
 }
 
 .prose li + li {
-  margin-top: 0.4em;
+  margin-top: 0.25em;
 }
 
 .prose hr {
