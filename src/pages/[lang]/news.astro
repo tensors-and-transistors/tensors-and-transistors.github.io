@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LANGS, t, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+---
+
+<BaseLayout lang={lang} title={t(lang, 'news.title')} description={t(lang, 'news.body')}>
+  <div class="page-head">
+    <h1>{t(lang, 'news.heading')}</h1>
+    <p>{t(lang, 'news.body')}</p>
+  </div>
+
+  <p>
+    <a class="back-link" href={`/${lang}/`}>← {t(lang, 'news.back')}</a>
+  </p>
+</BaseLayout>

@@ -1,6 +1,14 @@
 export const LANGS = ['es', 'en'] as const;
 export const DEFAULT_LANG = 'es';
+
+/** Todas las secciones con contenido. Siguen existiendo sus rutas. */
 export const SECTIONS = ['blog', 'tutorials', 'papers'] as const;
+
+/**
+ * Las que aparecen en el menú. Tutoriales existe pero está oculto
+ * hasta que haya contenido propio: quitarlo de aquí no rompe sus URLs.
+ */
+export const NAV_SECTIONS = ['blog', 'papers'] as const;
 
 export type Lang = (typeof LANGS)[number];
 export type Section = (typeof SECTIONS)[number];
@@ -14,29 +22,30 @@ export const SITE_NAME = 'Tensors & Transistors';
  */
 export const ui = {
   es: {
-    'site.tagline': 'La intersección entre software y hardware, en español.',
+    'site.tagline': 'Deep learning y hardware.',
     'site.intro':
-      'Contenido técnico riguroso sobre sistemas embebidos, machine learning y todo lo que ocurre donde el código toca el silicio. Sin humo, sin cursos que vender.',
+      'Cómo funcionan por dentro las redes neuronales y el silicio que las ejecuta. Del kernel de una convolución al presupuesto de memoria de un microcontrolador. Sin humo, sin cursos que vender.',
 
     'nav.blog': 'Blog técnico',
     'nav.tutorials': 'Tutoriales',
     'nav.papers': 'Resúmenes',
     'nav.home': 'Home',
+    'nav.news': 'Noticias',
+    'nav.newsLabel': 'Noticias — se abre en una pestaña nueva',
+    'nav.menu': 'Abrir el menú',
 
     'section.blog.title': 'Blog técnico',
     'section.blog.desc':
-      'Artículos de fondo: arquitectura, decisiones de diseño y lo que aprendemos construyendo.',
+      'Artículos de fondo sobre arquitecturas, decisiones de diseño y lo que aprendemos midiendo.',
     'section.tutorials.title': 'Tutoriales',
     'section.tutorials.desc':
       'Guías paso a paso, reproducibles de principio a fin. Si no compila en tu máquina, es un bug nuestro.',
     'section.papers.title': 'Resúmenes de papers',
     'section.papers.desc':
-      'Lecturas de artículos científicos destiladas a lo esencial: qué proponen, por qué importa y qué se puede usar hoy.',
+      'Investigación en deep learning y arquitectura de computadores, destilada a qué proponen, por qué importa y qué se puede usar hoy.',
 
     'list.empty': 'Todavía no hay nada publicado aquí. Pronto.',
     'list.readMore': 'Leer',
-    'list.count.one': 'artículo',
-    'list.count.many': 'artículos',
 
     'post.published': 'Publicado el',
     'post.updated': 'Actualizado el',
@@ -46,36 +55,41 @@ export const ui = {
     'lang.switchLabel': 'Ver esta página en inglés',
     'lang.noteLabel': 'Sobre los idiomas',
     'lang.note':
-      'Te recomendamos cambiar de idioma desde aquí, en vez de usar el traductor automático: cada versión está curada en su propio idioma.',
+      'Te recomendamos cambiar de idioma desde aquí: cada versión está curada en su propio idioma.',
 
     'home.explore': 'Explora',
-    'footer.built': 'Construido en abierto.',
-    'footer.source': 'Código fuente',
+
+    'news.title': 'Noticias',
+    'news.heading': 'En construcción',
+    'news.body':
+      'Estamos preparando un espacio dedicado a noticias técnicas sobre inteligencia artificial. Todavía no está listo.',
+    'news.back': 'Volver al inicio',
   },
   en: {
-    'site.tagline': 'Where software meets hardware.',
+    'site.tagline': 'Deep learning and hardware.',
     'site.intro':
-      'Rigorous technical writing on embedded systems, machine learning, and everything that happens where code touches silicon. No hype, no courses to sell.',
+      'How neural networks actually work, and how the silicon that runs them works too. From a convolution kernel to a microcontroller memory budget. No hype, no courses to sell.',
 
     'nav.blog': 'Technical blog',
     'nav.tutorials': 'Tutorials',
     'nav.papers': 'Summaries',
     'nav.home': 'Home',
+    'nav.news': 'News',
+    'nav.newsLabel': 'News — opens in a new tab',
+    'nav.menu': 'Open the menu',
 
     'section.blog.title': 'Technical blog',
     'section.blog.desc':
-      'Long-form articles: architecture, design decisions, and what we learn while building.',
+      'Long-form articles on architectures, design decisions, and what we learn from measuring.',
     'section.tutorials.title': 'Tutorials',
     'section.tutorials.desc':
       'Step-by-step guides, reproducible end to end. If it does not build on your machine, that is our bug.',
     'section.papers.title': 'Paper summaries',
     'section.papers.desc':
-      'Research papers distilled to what matters: what they propose, why it matters, and what you can use today.',
+      'Deep learning and computer architecture research, distilled to what it proposes, why it matters, and what you can use today.',
 
     'list.empty': 'Nothing published here yet. Soon.',
     'list.readMore': 'Read',
-    'list.count.one': 'article',
-    'list.count.many': 'articles',
 
     'post.published': 'Published on',
     'post.updated': 'Updated on',
@@ -85,11 +99,15 @@ export const ui = {
     'lang.switchLabel': 'View this page in Spanish',
     'lang.noteLabel': 'About languages',
     'lang.note':
-      'We recommend switching languages here rather than using auto-translate: each version is curated in its own language.',
+      'We recommend switching languages here: each version is curated in its own language.',
 
     'home.explore': 'Explore',
-    'footer.built': 'Built in the open.',
-    'footer.source': 'Source code',
+
+    'news.title': 'News',
+    'news.heading': 'Under construction',
+    'news.body':
+      'We are building a space dedicated to technical news on artificial intelligence. It is not ready yet.',
+    'news.back': 'Back to home',
   },
 } as const;
 

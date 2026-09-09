@@ -44,6 +44,10 @@ const altUrl = new URL(resolvedAlt, Astro.site);
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#000000" />
+
+    <!-- KaTeX: hoja de estilos y fuentes alojadas en el propio sitio.
+         Las fuentes solo se descargan en páginas que llevan fórmulas. -->
+    <link rel="stylesheet" href="/katex/katex.min.css" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Open Graph: cómo se ve al compartir el enlace -->

@@ -60,6 +60,47 @@
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+/* ---------------------------------------------------------
+   CMU Serif — Computer Modern, la tipografía con la que TeX
+   compone un paper. Solo se usa en los resúmenes, y solo se
+   descarga en esas páginas. Es la misma familia que KaTeX usa
+   para las fórmulas, así que texto y matemáticas por fin
+   coinciden en trazo y en altura de x.
+   Recortada a latín + latín extendido: 53 KB por variante.
+   --------------------------------------------------------- */
+
+@font-face {
+  font-family: 'CMU Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cmu-serif-500-roman.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'CMU Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cmu-serif-500-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'CMU Serif';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cmu-serif-700-roman.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'CMU Serif';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cmu-serif-700-italic.woff2') format('woff2');
+}
+
 :root {
   /* --- Superficies claras (todo el cuerpo del sitio) --- */
   --bg: #ffffff;
@@ -99,8 +140,15 @@
   --weight-strong: 400; /* Regular: negritas dentro del texto */
   --weight-h1: 500; /* Medium */
   --weight-h2: 400; /* Regular */
+  /* Inter es la unica tipografia del sitio. La monoespaciada sobrevive
+     solo en los bloques de codigo, donde el ancho fijo de cada caracter
+     es funcional: alinea columnas y distingue l de 1, O de 0. */
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
+
+  /* Tipografía de los resúmenes de papers: la de TeX. */
+  --font-latex: 'CMU Serif', 'Latin Modern Roman', 'Computer Modern',
+    Cambria, 'Times New Roman', Times, serif;
 
   /* Medidas */
   --measure: 82ch; /* ancho máximo del texto de un artículo */
@@ -119,6 +167,17 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+
+  /* El sitio es claro siempre. Sin esta línea, un iPhone en modo oscuro
+     pinta su lienzo por defecto en negro, y ese negro asoma durante la
+     transición entre páginas, cuando ninguno de los dos documentos
+     cubre el fondo por completo. */
+  color-scheme: light;
+
+  /* El fondo se pinta también aquí, no solo en <body>: durante la
+     navegación el lienzo ya está en blanco antes de que exista el body
+     de la página nueva. */
+  background: var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -264,16 +323,75 @@ main {
 .site-header .wrap {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.6rem 1.5rem;
   flex-wrap: wrap;
-  /* Poco margen vertical: así el logo puede crecer sin engordar la barra. */
   padding-block: 0.7rem;
+  /* La cabecera cambia de forma al hacer scroll: que el cambio se note
+     como un movimiento, no como un salto. */
+  transition: padding-block 0.25s ease;
+}
+
+/* Botón del menú. En escritorio no existe: el menú se ve entero. */
+.nav-toggle {
+  display: none;
+  order: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-inline-start: -0.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--header-text);
+  cursor: pointer;
+}
+
+.nav-toggle-bars {
+  position: relative;
+  display: block;
+  width: 1.15rem;
+  height: 0.75rem;
+}
+
+.nav-toggle-bars span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.16s ease;
+}
+
+.nav-toggle-bars span:nth-child(1) {
+  top: 0;
+}
+.nav-toggle-bars span:nth-child(2) {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.nav-toggle-bars span:nth-child(3) {
+  bottom: 0;
+}
+
+/* Abierto: las tres barras se convierten en una X. */
+.site-header.nav-open .nav-toggle-bars span:nth-child(1) {
+  transform: translateY(5.25px) rotate(45deg);
+}
+.site-header.nav-open .nav-toggle-bars span:nth-child(2) {
+  opacity: 0;
+}
+.site-header.nav-open .nav-toggle-bars span:nth-child(3) {
+  transform: translateY(-5.25px) rotate(-45deg);
 }
 
 .brand {
   display: block;
   flex-shrink: 0;
   line-height: 0;
+  order: 1;
 }
 
 /* El SVG del logo ya viene en blanco: se ve sobre la cabecera negra.
@@ -282,32 +400,41 @@ main {
   height: 3rem;
   width: auto;
   display: block;
+  transition: height 0.25s ease;
 }
 
-@media (max-width: 40rem) {
-  .brand img {
-    height: 2.2rem;
-  }
-}
+/* ---------- Orden de los tres bloques ----------
+   En escritorio caben en una línea: logo · menú · idioma.
+   En móvil el menú baja a su propia fila y el idioma se queda
+   arriba a la derecha, junto al logo. */
 
 .site-nav {
   display: flex;
   gap: 1.25rem;
-  margin-inline-start: auto;
   align-items: center;
   flex-wrap: wrap;
+  order: 2;
+  margin-inline-start: auto;
+}
+
+.lang-group {
+  display: flex;
+  align-items: center;
+  order: 3;
+  flex-shrink: 0;
 }
 
 .site-nav a {
+  position: relative;
   color: var(--header-muted);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: var(--weight-nav);
-  /* Negativo = letras más juntas. Ver la escala en el README del proyecto. */
   letter-spacing: -0.02em;
   padding-block: 0.25rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
+  transition: font-size 0.25s ease;
 }
 
 .site-nav a:hover {
@@ -316,46 +443,103 @@ main {
 
 .site-nav a[aria-current='page'] {
   color: var(--header-text);
-  border-bottom-color: var(--header-accent);
 }
 
-/* Toggle de idioma: dos segmentos, el activo relleno en cian.
-   Misma tipografía y tamaño que el resto de la navegación. */
-.lang-switch {
+/* La línea de la pestaña activa recoge el degradado de la franja
+   superior. El borde transparente de arriba reserva el espacio, así
+   que marcar una pestaña no desplaza a las demás. */
+.site-nav a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #22d3ee 0%, #2fe0a8 100%);
+}
+
+/* Enlace que sale del sitio: el icono lo anuncia antes de pulsarlo. */
+.nav-external {
   display: inline-flex;
-  border: 1px solid var(--header-border);
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.nav-external svg {
+  width: 0.72em;
+  height: 0.72em;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* Toggle de idioma.
+   La marca del idioma activo no es el fondo de un enlace, sino una
+   pastilla independiente (::before) que se desliza de un lado al otro.
+   Va por debajo del texto, con holgura por dentro del borde, así que
+   nunca parece un recuadro pegado al marco. */
+.lang-switch {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: stretch;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
-  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
   font-family: var(--font-sans);
   font-size: 0.9rem;
   line-height: 1;
-  /* Separa el selector de idioma de la última pestaña: son cosas distintas. */
   margin-inline-start: 1rem;
+  transition: font-size 0.25s ease;
 }
 
-.site-nav .lang-opt {
-  padding: 0.35rem 0.7rem !important;
-  color: var(--header-text) !important;
+.lang-switch::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  /* El navegador reconoce esta pastilla como el mismo elemento en las
+     dos páginas y la desplaza de EN a ES en vez de hacerla desaparecer
+     y reaparecer. */
+  view-transition-name: tnt-lang-pill;
+}
+
+.lang-switch.is-es::before {
+  left: auto;
+  right: 3px;
+}
+
+.lang-opt {
+  flex: 1 1 0;
+  padding: 0.35rem 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
   text-decoration: none;
-  border-bottom: none !important;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  border-bottom: none;
+  transition: color 0.25s ease;
 }
 
-.site-nav .lang-opt:not(.active):hover {
-  background: rgba(255, 255, 255, 0.15);
+.lang-opt:not(.active):hover {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.site-nav .lang-opt.active {
-  background: #ffffff;
-  color: #000000 !important;
+.lang-opt.active {
+  color: #ffffff;
 }
 
 /* Icono de información con nota emergente sobre los idiomas. */
 .lang-note {
   position: relative;
   display: inline-flex;
-  /* Anula casi todo el `gap` del menú: el icono pertenece al toggle. */
-  margin-inline-start: -1.05rem;
+  /* Pegado al toggle: el icono pertenece a él, no al menú. */
+  margin-inline-start: 0.35rem;
 }
 
 .lang-note-btn {
@@ -425,6 +609,7 @@ main {
   padding-block: 1rem 3rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 3rem;
+  text-align: center;
 }
 
 .hero h1 {
@@ -436,7 +621,6 @@ main {
 
 .hero .tagline {
   color: var(--accent);
-  font-family: var(--font-mono);
   font-size: 0.9rem;
   margin: 0 0 1.5rem;
   letter-spacing: 0.02em;
@@ -446,18 +630,18 @@ main {
   color: var(--text-dim);
   font-size: 1.15rem;
   max-width: 68ch;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* ---------- Rejilla de secciones (portada) ---------- */
 
 .eyebrow {
-  font-family: var(--font-mono);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--text-muted);
   margin: 0 0 1.25rem;
+  text-align: center;
 }
 
 .section-grid {
@@ -503,10 +687,14 @@ main {
 
 /* ---------- Índice de una sección ---------- */
 
+/* Cabecera de cada pestaña: título y subtítulo centrados. El bloque de
+   texto se centra a sí mismo (`margin-inline: auto`) además de centrar
+   sus líneas, para que quede simétrico dentro de la columna. */
 .page-head {
   margin-bottom: 3rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--border);
+  text-align: center;
 }
 
 .page-head h1 {
@@ -518,8 +706,8 @@ main {
 
 .page-head p {
   color: var(--text-muted);
-  margin: 0;
-  max-width: var(--measure);
+  margin: 0 auto;
+  max-width: 62ch;
 }
 
 .post-list {
@@ -546,7 +734,6 @@ main {
 }
 
 .post-meta {
-  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--text-muted);
   letter-spacing: 0.04em;
@@ -609,23 +796,24 @@ main {
 
 .prose {
   max-width: var(--measure);
+  line-height: 1.5;
 }
 
 .prose > * + * {
-  margin-top: 1.1em;
+  margin-top: 0.85em;
 }
 
 .prose h2 {
   font-size: 1.5rem;
   letter-spacing: -0.015em;
-  margin-top: 2em;
-  padding-top: 0.25em;
+  margin-top: 1.6em;
+  padding-top: 0;
   line-height: 1.25;
 }
 
 .prose h3 {
   font-size: 1.2rem;
-  margin-top: 1.6em;
+  margin-top: 1.3em;
   line-height: 1.3;
 }
 
@@ -708,7 +896,6 @@ main {
 }
 
 .back-link {
-  font-family: var(--font-mono);
   font-size: 0.85rem;
   text-decoration: none;
 }
@@ -735,4 +922,244 @@ main {
 
 .site-footer a:hover {
   color: var(--accent);
+}
+
+
+/* =========================================================
+   Cabecera en móvil
+   Una sola fila: menú · logo · idioma. Las pestañas se
+   despliegan debajo al pulsar el botón.
+   ========================================================= */
+
+@media (max-width: 48rem) {
+  .site-header .wrap {
+    padding-block: 0.5rem;
+    gap: 0.5rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .brand img {
+    height: 2rem;
+  }
+
+  .lang-group {
+    order: 2;
+    margin-inline-start: auto;
+  }
+
+  .lang-switch {
+    margin-inline-start: 0;
+    font-size: 0.82rem;
+  }
+
+  /* El menú ocupa su propia fila y está plegado hasta que se abre.
+     `max-height` permite animar el despliegue; `overflow: hidden`
+     recorta el contenido mientras está cerrado. */
+  .site-nav {
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-inline-start: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.28s ease, opacity 0.2s ease, margin-top 0.28s ease;
+  }
+
+  .site-header.nav-open .site-nav {
+    max-height: 22rem;
+    opacity: 1;
+    margin-top: 0.4rem;
+  }
+
+  .site-nav a {
+    font-size: 0.95rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .site-nav a:last-child {
+    border-bottom: none;
+  }
+
+  /* En vertical la línea de degradado se pone a la izquierda: subrayar
+     un elemento de lista completo se confunde con un separador. */
+  .site-nav a[aria-current='page']::after {
+    left: -0.75rem;
+    right: auto;
+    top: 0.45rem;
+    bottom: 0.45rem;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, #22d3ee 0%, #2fe0a8 100%);
+  }
+
+  .nav-external {
+    justify-content: flex-start;
+  }
+}
+
+/* =========================================================
+   Transición al cambiar de idioma
+   Navegación entre documentos con view transitions nativas:
+   el navegador funde la página saliente con la entrante. Donde
+   no se soporta, la navegación es la de siempre. Cero JavaScript.
+   ========================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: tnt-fade-out 0.18s ease both;
+  }
+
+  ::view-transition-new(root) {
+    animation: tnt-fade-in 0.26s ease both;
+  }
+
+  /* La cabecera no participa: se queda quieta mientras el cuerpo cruza.
+     Así el cambio se lee como "cambió el contenido", no "cambió la página". */
+  .site-header {
+    view-transition-name: tnt-header;
+  }
+
+  ::view-transition-old(tnt-header),
+  ::view-transition-new(tnt-header) {
+    animation: none;
+  }
+
+  /* La pastilla del idioma: solo se desplaza, sin fundido. La curva
+     entra rápido y frena largo, con un punto de control por encima de 1
+     para que llegue con un asentamiento mínimo en lugar de un tope seco.
+     Es lo que hace que se lea como líquido y no como un salto. */
+  ::view-transition-group(tnt-lang-pill) {
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.32, 1.06, 0.28, 1);
+  }
+
+  ::view-transition-old(tnt-lang-pill) {
+    animation: none;
+    opacity: 0;
+  }
+
+  ::view-transition-new(tnt-lang-pill) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes tnt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tnt-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+
+/* =========================================================
+   Resúmenes de papers
+   Estas páginas se componen con Computer Modern, la tipografía
+   de TeX, para que el texto y las fórmulas sean la misma letra.
+   El resto del sitio sigue en Inter.
+   ========================================================= */
+
+.paper {
+  font-family: var(--font-latex);
+  /* CMU tiene el ojo medio pequeño: al mismo tamaño nominal se lee
+     más chica que Inter, así que se compensa. */
+  font-size: 1.07em;
+  /* El interletraje negativo es un ajuste para Inter. En una serif
+     de trazo fino cierra el texto y lo ensucia. */
+  letter-spacing: normal;
+  /* CMU solo tiene dos pesos reales, 400 y 700. Pedir 200 haría que
+     el navegador sintetizara un trazo falso. */
+  font-weight: 400;
+}
+
+.paper .post-header h1,
+.paper .prose h2,
+.paper .prose h3,
+.paper .prose h4,
+.paper strong,
+.paper b {
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+.paper .prose {
+  line-height: 1.6;
+}
+
+/* El código sigue en monoespaciada: ahí el ancho fijo es funcional. */
+.paper code,
+.paper pre,
+.paper kbd,
+.paper samp {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  letter-spacing: normal;
+}
+
+/* Fecha, etiquetas y el enlace de vuelta son interfaz, no el paper. */
+.paper .post-meta,
+.paper .tag,
+.paper .back-link {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: -0.02em;
+}
+
+/* Ya no hace falta agrandar KaTeX: es exactamente la misma letra. */
+.paper .katex {
+  font-size: 1em;
+}
+
+/* =========================================================
+   Matemáticas (KaTeX)
+   El HTML llega ya renderizado desde el build; aquí solo se
+   ajusta cómo encaja con el resto del texto.
+   ========================================================= */
+
+.katex {
+  /* KaTeX viene algo pequeño frente a Inter: se iguala la altura de x. */
+  font-size: 1.06em;
+}
+
+/* Una ecuación en bloque puede ser más ancha que la columna de texto.
+   Que se desplace ella sola, sin arrastrar la página entera. */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.35rem;
+}
+
+/* Choque de nombres: KaTeX marca el número de ecuación con la clase
+   `tag`, la misma que usamos para las etiquetas de los artículos. Sin
+   esto, el `(1)` sale como una pastilla azul pegada a la fórmula en vez
+   del número alineado a la derecha del margen. */
+.katex .tag {
+  background: none;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.katex-display > .katex {
+  white-space: nowrap;
 }

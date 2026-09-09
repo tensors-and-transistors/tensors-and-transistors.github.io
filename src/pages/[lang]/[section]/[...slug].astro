@@ -59,7 +59,7 @@ const sectionTitle = t(lang, `section.${section}.title` as 'section.blog.title')
   altPath={altPath}
   hasTranslation={hasTranslation}
 >
-  <article>
+  <article class:list={[{ paper: section === 'papers' }]}>
     <header class="post-header">
       <div class="post-meta">
         <time datetime={entry.data.pubDate.toISOString()}>
