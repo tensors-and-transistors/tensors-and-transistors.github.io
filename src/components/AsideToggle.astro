@@ -1,0 +1,61 @@
+---
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<button
+  type="button"
+  class="aside-toggle"
+  aria-expanded="true"
+  aria-controls="side-panel-list"
+  aria-label={t(lang, 'aside.index')}
+  title={t(lang, 'aside.index')}
+>
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path
+      d="M3.75 9.75 8 5.5l4.25 4.25"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+</button>
+
+<script is:inline>
+  // Mostrar u ocultar el panel lateral. La decisión se guarda en el
+  // navegador, así que se respeta al cambiar de página y al volver.
+  (function () {
+    var KEY = 'tnt-aside-hidden';
+    var root = document.querySelector('.with-aside');
+    var button = document.querySelector('.aside-toggle');
+    if (!root || !button) return;
+
+    function apply(hidden) {
+      root.classList.toggle('aside-hidden', hidden);
+      button.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    }
+
+    // El almacenamiento puede fallar (modo privado, ajustes del navegador).
+    // Si falla, el panel simplemente arranca visible.
+    var stored = null;
+    try {
+      stored = localStorage.getItem(KEY);
+    } catch (e) {}
+
+    apply(stored === '1');
+
+    button.addEventListener('click', function () {
+      var hidden = !root.classList.contains('aside-hidden');
+      apply(hidden);
+      try {
+        localStorage.setItem(KEY, hidden ? '1' : '0');
+      } catch (e) {}
+    });
+  })();
+</script>

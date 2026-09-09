@@ -5,6 +5,7 @@ pubDate: 2026-09-08
 tags: ['hardware', 'fundamentos']
 translationKey: 'transistor-to-instruction'
 draft: false
+category: 'hardware'
 ---
 
 > **Borrador.** El texto de abajo es relleno para revisar la maquetación. Los títulos marcan la estructura prevista; el contenido real llega después.

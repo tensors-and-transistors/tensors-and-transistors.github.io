@@ -10,6 +10,13 @@ export const SECTIONS = ['blog', 'tutorials', 'papers'] as const;
  */
 export const NAV_SECTIONS = ['blog', 'papers'] as const;
 
+/**
+ * Las ramas del panel lateral del blog, en el orden en que se muestran.
+ * Cada artículo declara la suya en el frontmatter (`category`).
+ */
+export const BLOG_CATEGORIES = ['deep-learning', 'hardware'] as const;
+export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
+
 export type Lang = (typeof LANGS)[number];
 export type Section = (typeof SECTIONS)[number];
 
@@ -33,6 +40,13 @@ export const ui = {
     'nav.news': 'Noticias',
     'nav.newsLabel': 'Noticias — se abre en una pestaña nueva',
     'nav.menu': 'Abrir el menú',
+
+    'aside.blog': 'Contenidos',
+    'aside.papers': 'Otros resúmenes',
+    'aside.empty': 'Todavía nada aquí.',
+    'aside.index': 'Índice',
+    'cat.deep-learning': 'Deep Learning',
+    'cat.hardware': 'Hardware',
 
     'section.blog.title': 'Blog técnico',
     'section.blog.desc':
@@ -78,6 +92,13 @@ export const ui = {
     'nav.newsLabel': 'News — opens in a new tab',
     'nav.menu': 'Open the menu',
 
+    'aside.blog': 'Contents',
+    'aside.papers': 'Other summaries',
+    'aside.empty': 'Nothing here yet.',
+    'aside.index': 'Index',
+    'cat.deep-learning': 'Deep Learning',
+    'cat.hardware': 'Hardware',
+
     'section.blog.title': 'Technical blog',
     'section.blog.desc':
       'Long-form articles on architectures, design decisions, and what we learn from measuring.',
@@ -122,7 +143,8 @@ export function t(lang: Lang, key: Key): string {
 export function formatDate(date: Date, lang: Lang): string {
   return new Intl.DateTimeFormat(lang === 'es' ? 'es-ES' : 'en-US', {
     year: 'numeric',
-    month: 'long',
+    // Mes abreviado: la fecha acompaña, no encabeza.
+    month: 'short',
     day: 'numeric',
     timeZone: 'UTC',
   }).format(date);

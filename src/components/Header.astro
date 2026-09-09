@@ -27,69 +27,39 @@ const navItems = [
 
 const isCurrent = (item: { href: string; exact: boolean }) =>
   item.exact ? path === item.href : path.startsWith(item.href);
+
+// El icono de "abre en una pestaña nueva". Se usa en dos sitios
+// (la esquina derecha y el menú de móvil), así que se escribe una vez.
+const externalIcon = `<svg viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+  <path d="M5.5 2.5H2.5v9h9v-3" fill="none" stroke="currentColor" stroke-width="1.3"
+    stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M8.5 2.5h3v3M11.5 2.5 6.5 7.5" fill="none" stroke="currentColor" stroke-width="1.3"
+    stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>`;
 ---
 
 <header class="site-header">
-  <div class="wrap">
-    <!-- Solo visible en móvil: abre y cierra el menú. -->
-    <button
-      type="button"
-      class="nav-toggle"
-      aria-expanded="false"
-      aria-controls="site-nav"
-      aria-label={t(lang, 'nav.menu')}
-    >
-      <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
-    </button>
-
-    <a class="brand" href={`/${lang}/`} aria-label={SITE_NAME}>
-      <img src="/tnt_logo.svg" alt={SITE_NAME} width="1882" height="666" />
-    </a>
-
-    <!-- El selector de idioma es hermano del menú, no hijo. Así puede
-         ocupar la esquina superior derecha en cualquier ancho. -->
-    <div class="lang-group">
-      <span class:list={['lang-switch', `is-${lang}`]}>
-        <a
-          class:list={['lang-opt', { active: lang === 'en' }]}
-          href={lang === 'en' ? path : swapped}
-          hreflang="en"
-          aria-current={lang === 'en' ? 'true' : undefined}>EN</a
-        ><a
-          class:list={['lang-opt', { active: lang === 'es' }]}
-          href={lang === 'es' ? path : swapped}
-          hreflang="es"
-          aria-current={lang === 'es' ? 'true' : undefined}>ES</a
+  <div class="header-bar">
+    <!-- Izquierda: menú (solo móvil) y marca. -->
+    <div class="header-left">
+      <button
+        type="button"
+        class="nav-toggle"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        aria-label={t(lang, 'nav.menu')}
+      >
+        <span class="nav-toggle-bars" aria-hidden="true"
+          ><span></span><span></span><span></span></span
         >
-      </span>
+      </button>
 
-      <!-- Nota sobre los idiomas. Se muestra al pasar el cursor y también
-           al enfocar con el teclado o tocar en móvil. -->
-      <span class="lang-note">
-        <button
-          type="button"
-          class="lang-note-btn"
-          aria-label={t(lang, 'lang.noteLabel')}
-          aria-describedby="lang-note-text"
-        >
-          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-            <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" />
-            <circle cx="10" cy="6" r="1.15" fill="currentColor" />
-            <path
-              d="M10 9v6"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              fill="none"
-            />
-          </svg>
-        </button>
-        <span class="lang-note-tip" id="lang-note-text" role="tooltip">
-          {t(lang, 'lang.note')}
-        </span>
-      </span>
+      <a class="brand" href={`/${lang}/`} aria-label={SITE_NAME}>
+        <img src="/tnt_logo.svg" alt={SITE_NAME} width="1882" height="666" />
+      </a>
     </div>
 
+    <!-- Centro: las secciones. -->
     <nav class="site-nav" id="site-nav" aria-label={SITE_NAME}>
       {
         navItems.map((item) => (
@@ -99,34 +69,75 @@ const isCurrent = (item: { href: string; exact: boolean }) =>
         ))
       }
 
-      <!-- Noticias vivirá fuera del sitio, así que abre en pestaña nueva y lo
-           anuncia con el icono. De momento apunta a una página propia. -->
+      <!-- Noticias vive en la esquina derecha; dentro del menú solo
+           aparece cuando ese menú es el desplegable de móvil. -->
       <a
-        class="nav-external"
+        class="nav-external nav-external-mobile"
         href={`/${lang}/news/`}
         target="_blank"
         rel="noopener"
         aria-label={t(lang, 'nav.newsLabel')}
       >
         {t(lang, 'nav.news')}
-        <svg viewBox="0 0 14 14" aria-hidden="true" focusable="false">
-          <path
-            d="M5.5 2.5H2.5v9h9v-3"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-          <path
-            d="M8.5 2.5h3v3M11.5 2.5 6.5 7.5"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
+        <Fragment set:html={externalIcon} />
       </a>
     </nav>
+
+    <!-- Derecha: noticias e idioma. -->
+    <div class="header-actions">
+      <a
+        class="news-btn"
+        href={`/${lang}/news/`}
+        target="_blank"
+        rel="noopener"
+        aria-label={t(lang, 'nav.newsLabel')}
+      >
+        {t(lang, 'nav.news')}
+        <Fragment set:html={externalIcon} />
+      </a>
+
+      <div class="lang-group">
+        <span class:list={['lang-switch', `is-${lang}`]}>
+          <a
+            class:list={['lang-opt', { active: lang === 'en' }]}
+            href={lang === 'en' ? path : swapped}
+            hreflang="en"
+            aria-current={lang === 'en' ? 'true' : undefined}>EN</a
+          ><a
+            class:list={['lang-opt', { active: lang === 'es' }]}
+            href={lang === 'es' ? path : swapped}
+            hreflang="es"
+            aria-current={lang === 'es' ? 'true' : undefined}>ES</a
+          >
+        </span>
+
+        <!-- Nota sobre los idiomas. Se muestra al pasar el cursor y también
+             al enfocar con el teclado o tocar en móvil. -->
+        <span class="lang-note">
+          <button
+            type="button"
+            class="lang-note-btn"
+            aria-label={t(lang, 'lang.noteLabel')}
+            aria-describedby="lang-note-text"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="10" cy="6" r="1.15" fill="currentColor" />
+              <path
+                d="M10 9v6"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                fill="none"
+              />
+            </svg>
+          </button>
+          <span class="lang-note-tip" id="lang-note-text" role="tooltip">
+            {t(lang, 'lang.note')}
+          </span>
+        </span>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -158,5 +169,48 @@ const isCurrent = (item: { href: string; exact: boolean }) =>
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') setOpen(false);
     });
+
+    // --- La cabecera se retira al bajar y vuelve al subir ---
+    // Bajar es leer: la barra estorba. Subir es buscar: la barra sirve.
+    var last = window.scrollY;
+    var ticking = false;
+    // Por debajo de esta altura no se esconde nunca: en la parte de
+    // arriba de la página la cabecera siempre está.
+    var FLOOR = 140;
+    // Movimientos menores se ignoran, para que no parpadee con el
+    // rebote del trackpad ni con los ajustes de scroll del navegador.
+    var DEAD_ZONE = 6;
+
+    function onScroll() {
+      var y = window.scrollY;
+      var delta = y - last;
+
+      if (Math.abs(delta) < DEAD_ZONE) {
+        ticking = false;
+        return;
+      }
+
+      // Con el menú de móvil abierto la barra no se mueve: se llevaría
+      // el menú con ella.
+      if (!header.classList.contains('nav-open')) {
+        header.classList.toggle('header-hidden', delta > 0 && y > FLOOR);
+      }
+
+      last = y;
+      ticking = false;
+    }
+
+    // El evento de scroll llega muchas veces por segundo; el trabajo se
+    // hace una vez por fotograma.
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (!ticking) {
+          ticking = true;
+          window.requestAnimationFrame(onScroll);
+        }
+      },
+      { passive: true }
+    );
   })();
 </script>

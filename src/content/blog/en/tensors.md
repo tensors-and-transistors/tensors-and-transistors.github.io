@@ -5,6 +5,7 @@ pubDate: 2026-09-08
 tags: ['deep learning', 'fundamentals']
 translationKey: 'what-is-a-tensor'
 draft: false
+category: 'deep-learning'
 ---
 
 > **Draft.** The text below is filler for reviewing the layout. The headings show the planned structure; the real content comes later.

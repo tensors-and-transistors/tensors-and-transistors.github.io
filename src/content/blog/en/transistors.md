@@ -5,6 +5,7 @@ pubDate: 2026-09-08
 tags: ['hardware', 'fundamentals']
 translationKey: 'transistor-to-instruction'
 draft: false
+category: 'hardware'
 ---
 
 > **Draft.** The text below is filler for reviewing the layout. The headings show the planned structure; the real content comes later.

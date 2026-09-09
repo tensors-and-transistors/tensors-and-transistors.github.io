@@ -63,10 +63,11 @@ const altUrl = new URL(resolvedAlt, Astro.site);
   <body>
     <a class="skip" href="#content">Skip to content</a>
     <Header lang={lang} altPath={resolvedAlt} />
+    <!-- `main` ya no impone la columna de lectura: cada página decide si
+         se ciñe a ella (`.wrap`) o si se extiende de lado a lado para
+         colgar un panel en el margen. -->
     <main id="content">
-      <div class="wrap">
-        <slot />
-      </div>
+      <slot />
     </main>
     <Footer lang={lang} />
   </body>

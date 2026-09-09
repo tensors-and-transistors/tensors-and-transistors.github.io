@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SideNav from '../../../components/SideNav.astro';
 import { LANGS, SECTIONS, t, formatDate, type Lang, type Section } from '../../../i18n/ui';
 
 // Genera una página por cada combinación idioma × sección:
@@ -18,41 +19,48 @@ const posts = (await getCollection(section))
   .filter((entry) => entry.id.startsWith(`${lang}/`) && !entry.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
+// El panel lateral solo tiene sentido donde hay una jerarquía que mostrar.
+const showAside = section === 'blog' || section === 'papers';
+
 const title = t(lang, `section.${section}.title` as 'section.blog.title');
 const description = t(lang, `section.${section}.desc` as 'section.blog.desc');
 ---
 
 <BaseLayout lang={lang} title={title} description={description}>
-  <div class="page-head">
-    <h1>{title}</h1>
-    <p>{description}</p>
-  </div>
+  <div class:list={['with-aside', { 'no-aside': !showAside }]}>
+    {showAside && <SideNav lang={lang} section={section} />}
 
-  {
-    posts.length === 0 ? (
-      <p class="empty">{t(lang, 'list.empty')}</p>
-    ) : (
-      <ul class="post-list">
-        {posts.map((post) => {
-          const slug = post.id.split('/').slice(1).join('/');
-          return (
-            <li class="post-item">
-              <a href={`/${lang}/${section}/${slug}/`}>
-                <div class="post-meta">
-                  <time datetime={post.data.pubDate.toISOString()}>
-                    {formatDate(post.data.pubDate, lang)}
-                  </time>
-                  {post.data.tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
-                <h2>{post.data.title}</h2>
-                <p>{post.data.description}</p>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    )
-  }
+    <div class="with-aside-main">
+      <div class="page-head">
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+
+
+      {
+        posts.length === 0 ? (
+          <p class="empty">{t(lang, 'list.empty')}</p>
+        ) : (
+          <ul class="post-list">
+            {posts.map((post) => {
+              const slug = post.id.split('/').slice(1).join('/');
+              return (
+                <li class="post-item">
+                  <a href={`/${lang}/${section}/${slug}/`}>
+                    <h2>{post.data.title}</h2>
+                    <p>{post.data.description}</p>
+                    <div class="post-meta">
+                      <time datetime={post.data.pubDate.toISOString()}>
+                        {formatDate(post.data.pubDate, lang)}
+                      </time>
+                    </div>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )
+      }
+    </div>
+  </div>
 </BaseLayout>

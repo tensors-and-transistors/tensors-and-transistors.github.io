@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SideNav from '../../../components/SideNav.astro';
 import { SECTIONS, t, formatDate, type Lang, type Section } from '../../../i18n/ui';
 
 // Una página por cada archivo .md de cada sección.
@@ -49,6 +50,8 @@ const lang = Astro.params.lang as Lang;
 const section = Astro.params.section as Section;
 const { Content } = await render(entry);
 
+const showAside = section === 'blog' || section === 'papers';
+
 const sectionTitle = t(lang, `section.${section}.title` as 'section.blog.title');
 ---
 
@@ -59,35 +62,39 @@ const sectionTitle = t(lang, `section.${section}.title` as 'section.blog.title')
   altPath={altPath}
   hasTranslation={hasTranslation}
 >
-  <article class:list={[{ paper: section === 'papers' }]}>
-    <header class="post-header">
-      <div class="post-meta">
-        <time datetime={entry.data.pubDate.toISOString()}>
-          {t(lang, 'post.published')} {formatDate(entry.data.pubDate, lang)}
-        </time>
-        {entry.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
-      </div>
+  <div class:list={['with-aside', { 'no-aside': !showAside }]}>
+    {showAside && <SideNav lang={lang} section={section} current={Astro.url.pathname} />}
 
-      <h1>{entry.data.title}</h1>
-      <p class="description">{entry.data.description}</p>
+    <div class="with-aside-main">
+      <article class:list={[{ paper: section === 'papers' }]}>
+        <header class="post-header">
+          <h1>{entry.data.title}</h1>
+          <p class="description">{entry.data.description}</p>
 
-      {
-        entry.data.updatedDate && (
-          <p class="post-meta" style="margin-top:1rem">
-            {t(lang, 'post.updated')} {formatDate(entry.data.updatedDate, lang)}
+          <p class="post-meta">
+            <time datetime={entry.data.pubDate.toISOString()}>
+              {t(lang, 'post.published')} {formatDate(entry.data.pubDate, lang)}
+            </time>
+            {
+              entry.data.updatedDate && (
+                <span>
+                  · {t(lang, 'post.updated')} {formatDate(entry.data.updatedDate, lang)}
+                </span>
+              )
+            }
           </p>
-        )
-      }
-    </header>
+        </header>
 
-    <div class="prose">
-      <Content />
+        <div class="prose">
+          <Content />
+        </div>
+
+        <footer class="post-footer">
+          <a class="back-link" href={`/${lang}/${section}/`}>
+            ← {t(lang, 'post.back')} {sectionTitle.toLowerCase()}
+          </a>
+        </footer>
+      </article>
     </div>
-
-    <footer class="post-footer">
-      <a class="back-link" href={`/${lang}/${section}/`}>
-        ← {t(lang, 'post.back')} {sectionTitle.toLowerCase()}
-      </a>
-    </footer>
-  </article>
+  </div>
 </BaseLayout>

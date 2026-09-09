@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import AsideToggle from './AsideToggle.astro';
+import { BLOG_CATEGORIES, t, type Lang, type Section } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  section: Section;
+  /** Ruta del artículo abierto, para marcarlo en el índice. */
+  current?: string;
+}
+
+const { lang, section, current } = Astro.props;
+
+// Los artículos publicados de esta sección, en este idioma.
+const entries = (await getCollection(section))
+  .filter((e) => e.id.startsWith(`${lang}/`) && !e.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const linkFor = (id: string) => `/${lang}/${section}/${id.split('/').slice(1).join('/')}/`;
+
+// El blog se organiza en ramas; el resto de secciones es una lista plana.
+// Un grupo sin artículos no se dibuja: el panel nunca muestra ramas vacías.
+const groups =
+  section === 'blog'
+    ? BLOG_CATEGORIES.map((cat) => ({
+        label: t(lang, `cat.${cat}` as 'cat.hardware'),
+        items: entries.filter((e) => e.data.category === cat),
+      })).filter((g) => g.items.length > 0)
+    : [{ label: null, items: entries }];
+---
+
+<aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
+  <div class="side-head">
+    <p class="side-title">{t(lang, `aside.${section}` as 'aside.blog')}</p>
+    <AsideToggle lang={lang} />
+  </div>
+
+  {
+    groups.length === 0 ? (
+      <p class="side-empty">{t(lang, 'aside.empty')}</p>
+    ) : (
+      <ul class="side-groups" id="side-panel-list">
+        {groups.map((group) => (
+          <li class="side-group">
+            {group.label && <p class="side-group-name">{group.label}</p>}
+            <ul class="side-items">
+              {group.items.map((entry) => {
+                const href = linkFor(entry.id);
+                return (
+                  <li>
+                    <a href={href} aria-current={href === current ? 'page' : undefined}>
+                      {entry.data.title}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</aside>

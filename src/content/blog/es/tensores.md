@@ -5,6 +5,7 @@ pubDate: 2026-09-08
 tags: ['deep learning', 'fundamentos']
 translationKey: 'what-is-a-tensor'
 draft: false
+category: 'deep-learning'
 ---
 
 > **Borrador.** El texto de abajo es relleno para revisar la maquetación. Los títulos marcan la estructura prevista; el contenido real llega después.

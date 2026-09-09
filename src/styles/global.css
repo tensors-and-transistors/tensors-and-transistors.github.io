@@ -61,44 +61,43 @@
 }
 
 /* ---------------------------------------------------------
-   CMU Serif — Computer Modern, la tipografía con la que TeX
-   compone un paper. Solo se usa en los resúmenes, y solo se
-   descarga en esas páginas. Es la misma familia que KaTeX usa
-   para las fórmulas, así que texto y matemáticas por fin
-   coinciden en trazo y en altura de x.
-   Recortada a latín + latín extendido: 53 KB por variante.
+   CMU Sans — Computer Modern Sans, la familia que TeX usa con
+   \textsf. Solo se emplea en los resúmenes de papers, y solo se
+   descarga en esas páginas. Las fórmulas siguen en la CM con
+   serifa: es lo que hace LaTeX cuando el texto va en sans.
+   Recortada a latín + latín extendido: ~35 KB por variante.
    --------------------------------------------------------- */
 
 @font-face {
-  font-family: 'CMU Serif';
+  font-family: 'CMU Sans';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/cmu-serif-500-roman.woff2') format('woff2');
+  src: url('/fonts/cmu-sans-500-roman.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'CMU Serif';
+  font-family: 'CMU Sans';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/cmu-serif-500-italic.woff2') format('woff2');
+  src: url('/fonts/cmu-sans-500-italic.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'CMU Serif';
+  font-family: 'CMU Sans';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/cmu-serif-700-roman.woff2') format('woff2');
+  src: url('/fonts/cmu-sans-700-roman.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'CMU Serif';
+  font-family: 'CMU Sans';
   font-style: italic;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/cmu-serif-700-italic.woff2') format('woff2');
+  src: url('/fonts/cmu-sans-700-italic.woff2') format('woff2');
 }
 
 :root {
@@ -146,13 +145,18 @@
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
-  /* Tipografía de los resúmenes de papers: la de TeX. */
-  --font-latex: 'CMU Serif', 'Latin Modern Roman', 'Computer Modern',
-    Cambria, 'Times New Roman', Times, serif;
+  /* Tipografía de los resúmenes de papers: la de TeX, en sans. */
+  --font-latex: 'CMU Sans', 'Latin Modern Sans', 'Computer Modern Sans',
+    ui-sans-serif, system-ui, sans-serif;
 
   /* Medidas */
-  --measure: 82ch; /* ancho máximo del texto de un artículo */
-  --page: 68rem; /* ancho máximo de la página (1088px) */
+  /* La columna de lectura: la MISMA en todas las pestañas, tengan panel
+     lateral o no. Si cambia, cambian todas a la vez. */
+  --column: 56rem;
+  /* La pista central de la rejilla. Es más ancha que la columna a
+     propósito: la diferencia es el aire que queda entre el texto y el
+     panel del margen. */
+  --page: 68rem;
   --radius: 10px;
 }
 
@@ -263,14 +267,14 @@ a:hover {
 
 .wrap {
   width: 100%;
-  max-width: var(--page);
+  max-width: calc(var(--column) + 3rem);
   margin-inline: auto;
   padding-inline: 1.5rem;
 }
 
 main {
   flex: 1;
-  padding-block: 3.5rem 5rem;
+  padding-block: 2rem 5rem;
 }
 
 /* Enlace de salto, visible solo al tabular. Accesibilidad. */
@@ -298,6 +302,24 @@ main {
   position: sticky;
   top: 0;
   z-index: 50;
+  /* Se retira hacia arriba al bajar por la página. La curva sale lenta
+     y entra lenta, sin rebote: el movimiento se nota poco y nunca
+     compite con la lectura. */
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.site-header.header-hidden {
+  /* El 101% cubre el filete de color: no debe asomar por el borde. */
+  transform: translateY(-101%);
+}
+
+/* Sin animación para quien la haya desactivado en su sistema: la barra
+   simplemente está o no está. */
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
 }
 
 /* Franja de color sobre la cabecera. Arte nativo: un solo degradado
@@ -320,15 +342,70 @@ main {
   );
 }
 
-.site-header .wrap {
-  display: flex;
+/* Tres zonas: marca a la izquierda, secciones al centro, acciones a la
+   derecha. Las columnas laterales son 1fr cada una, así que el menú
+   queda centrado respecto a la pantalla, no respecto al hueco que le
+   dejan sus vecinos. La barra ocupa todo el ancho: la cabecera no se
+   encierra en la columna de contenido. */
+.header-bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 0.6rem 1.5rem;
-  flex-wrap: wrap;
-  padding-block: 0.7rem;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0.85rem clamp(1.25rem, 3.5vw, 3rem);
   /* La cabecera cambia de forma al hacer scroll: que el cambio se note
      como un movimiento, no como un salto. */
-  transition: padding-block 0.25s ease;
+  transition: padding 0.25s ease;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.header-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Noticias: un enlace que sale del sitio, así que se dibuja como
+   botón y lleva el icono que lo anuncia. */
+.news-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--header-border);
+  border-radius: 999px;
+  color: var(--header-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: var(--weight-nav);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transition: background-color 0.18s ease;
+}
+
+.news-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.news-btn svg {
+  width: 0.72em;
+  height: 0.72em;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* La copia de Noticias que vive dentro del menú solo existe cuando ese
+   menú es el desplegable de móvil. */
+.site-nav .nav-external-mobile {
+  display: none;
 }
 
 /* Botón del menú. En escritorio no existe: el menú se ve entero. */
@@ -397,7 +474,7 @@ main {
 /* El SVG del logo ya viene en blanco: se ve sobre la cabecera negra.
    Solo fijamos la altura; el ancho se calcula solo. */
 .brand img {
-  height: 3rem;
+  height: 2.6rem;
   width: auto;
   display: block;
   transition: height 0.25s ease;
@@ -410,17 +487,15 @@ main {
 
 .site-nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.5rem;
   align-items: center;
   flex-wrap: wrap;
-  order: 2;
-  margin-inline-start: auto;
+  justify-content: center;
 }
 
 .lang-group {
   display: flex;
   align-items: center;
-  order: 3;
   flex-shrink: 0;
 }
 
@@ -428,7 +503,7 @@ main {
   position: relative;
   color: var(--header-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: var(--weight-nav);
   letter-spacing: -0.02em;
   padding-block: 0.25rem;
@@ -484,13 +559,12 @@ main {
   display: inline-flex;
   align-items: stretch;
   padding: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   font-family: var(--font-sans);
   font-size: 0.9rem;
   line-height: 1;
-  margin-inline-start: 1rem;
   transition: font-size 0.25s ease;
 }
 
@@ -503,8 +577,11 @@ main {
   left: 3px;
   width: calc(50% - 3px);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  /* Blanco pleno: el idioma activo tiene que leerse de un vistazo. La
+     pastilla va por dentro del marco y con las esquinas completamente
+     redondeadas, así que se lee como el mando de un interruptor y no
+     como un recuadro pegado al borde. */
+  background: #ffffff;
   /* El navegador reconoce esta pastilla como el mismo elemento en las
      dos páginas y la desplaza de EN a ES en vez de hacerla desaparecer
      y reaparecer. */
@@ -518,8 +595,8 @@ main {
 
 .lang-opt {
   flex: 1 1 0;
-  padding: 0.35rem 0.7rem;
-  color: rgba(255, 255, 255, 0.55);
+  padding: 0.35rem 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
   text-align: center;
   text-decoration: none;
   border-bottom: none;
@@ -527,11 +604,12 @@ main {
 }
 
 .lang-opt:not(.active):hover {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .lang-opt.active {
-  color: #ffffff;
+  color: #000000;
+  font-weight: var(--weight-strong);
 }
 
 /* Icono de información con nota emergente sobre los idiomas. */
@@ -564,8 +642,8 @@ main {
 }
 
 .lang-note-btn svg {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 0.95rem;
+  height: 0.95rem;
   display: block;
 }
 
@@ -636,9 +714,8 @@ main {
 /* ---------- Rejilla de secciones (portada) ---------- */
 
 .eyebrow {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-size: 0.85rem;
+  letter-spacing: -0.01em;
   color: var(--text-muted);
   margin: 0 0 1.25rem;
   text-align: center;
@@ -691,8 +768,8 @@ main {
    texto se centra a sí mismo (`margin-inline: auto`) además de centrar
    sus líneas, para que quede simétrico dentro de la columna. */
 .page-head {
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
   text-align: center;
 }
@@ -724,7 +801,7 @@ main {
 
 .post-item a {
   display: block;
-  padding-block: 1.75rem;
+  padding-block: 1.15rem;
   text-decoration: none;
   color: inherit;
 }
@@ -734,18 +811,21 @@ main {
 }
 
 .post-meta {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
+  /* Cierra la ficha, no la encabeza. */
+  margin: 0.55rem 0 0;
+  opacity: 0.75;
 }
 
 .post-item h2 {
   font-size: 1.35rem;
-  margin: 0.5rem 0 0.5rem;
+  margin: 0 0 0.5rem;
   line-height: 1.3;
   letter-spacing: -0.015em;
   transition: color 0.15s ease;
@@ -755,16 +835,8 @@ main {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.98rem;
-  max-width: var(--measure);
 }
 
-.tag {
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 0.1rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-}
 
 .empty {
   color: var(--text-muted);
@@ -775,8 +847,8 @@ main {
 /* ---------- Artículo ---------- */
 
 .post-header {
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  margin-bottom: 2.25rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -784,18 +856,19 @@ main {
   font-size: clamp(1.9rem, 4.5vw, 2.7rem);
   line-height: 1.15;
   letter-spacing: -0.025em;
-  margin: 0.75rem 0 1rem;
+  margin: 0 0 1rem;
 }
 
 .post-header .description {
   color: var(--text-dim);
   font-size: 1.15rem;
   margin: 0;
-  max-width: var(--measure);
 }
 
+/* El ancho del texto lo fija `--column` en la columna que lo contiene.
+   Aquí no se vuelve a acotar: si lo hiciéramos, unas páginas quedarían
+   más estrechas que otras sin que se note por qué. */
 .prose {
-  max-width: var(--measure);
   line-height: 1.5;
 }
 
@@ -932,27 +1005,43 @@ main {
    ========================================================= */
 
 @media (max-width: 48rem) {
-  .site-header .wrap {
-    padding-block: 0.5rem;
-    gap: 0.5rem 0.75rem;
+  .header-bar {
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .header-left {
+    order: 1;
+  }
+
+  .header-actions {
+    order: 2;
+    margin-inline-start: auto;
   }
 
   .nav-toggle {
     display: inline-flex;
+    margin-inline-start: -0.5rem;
   }
 
   .brand img {
     height: 2rem;
   }
 
-  .lang-group {
-    order: 2;
-    margin-inline-start: auto;
+  /* En una sola fila no caben logo, Noticias, idioma y menú. Noticias
+     baja al desplegable, donde hay sitio de sobra. */
+  .news-btn {
+    display: none;
+  }
+
+  .site-nav .nav-external-mobile {
+    display: inline-flex;
   }
 
   .lang-switch {
-    margin-inline-start: 0;
     font-size: 0.82rem;
   }
 
@@ -964,8 +1053,8 @@ main {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
     gap: 0;
-    margin-inline-start: 0;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -981,6 +1070,9 @@ main {
   .site-nav a {
     font-size: 0.95rem;
     padding-block: 0.7rem;
+    /* Deja sitio a la barra del elemento activo: el menú recorta lo que
+       se salga de su caja, así que la barra tiene que caber dentro. */
+    padding-inline-start: 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
@@ -991,7 +1083,7 @@ main {
   /* En vertical la línea de degradado se pone a la izquierda: subrayar
      un elemento de lista completo se confunde con un separador. */
   .site-nav a[aria-current='page']::after {
-    left: -0.75rem;
+    left: 0;
     right: auto;
     top: 0.45rem;
     bottom: 0.45rem;
@@ -1071,26 +1163,262 @@ main {
 
 
 /* =========================================================
+   Layout con panel lateral
+   El contenido conserva su columna de lectura y queda centrado
+   en la pantalla; el panel se cuelga del margen sobrante, fuera
+   de esa columna. Ocultarlo no mueve el texto: el centro no
+   depende del panel.
+   ========================================================= */
+
+.with-aside {
+  display: grid;
+  /* Columnas laterales iguales (1fr), centro con el ancho de siempre. */
+  grid-template-columns: minmax(1.5rem, 1fr) min(100%, var(--page)) minmax(1.5rem, 1fr);
+  grid-template-areas: 'panel main .';
+  align-items: start;
+}
+
+.with-aside-main {
+  grid-area: main;
+  min-width: 0;
+  /* Misma columna de lectura que el resto del sitio, centrada dentro
+     de la pista: un resumen y el índice de su sección miden igual. */
+  width: 100%;
+  max-width: calc(var(--column) + 3rem);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.with-aside > .side-panel {
+  grid-area: panel;
+  /* Pegado al borde de la columna de texto, no al de la pantalla. */
+  /* Ocupa el margen entero: su ancho es el que sobre a los lados de la
+     columna de texto, ni más ni menos. */
+  width: 100%;
+  padding-inline: 1.5rem 2rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.with-aside.aside-hidden .side-groups,
+.with-aside.aside-hidden .side-empty {
+  display: none;
+}
+
+/* Plegado, el panel es solo su título: sin lista no hace falta el
+   filete que lo separaba del contenido. */
+.with-aside.aside-hidden > .side-panel {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* --- El panel, sin caja: solo la jerarquía --- */
+
+.side-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.side-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: var(--weight-nav);
+  letter-spacing: -0.01em;
+  color: var(--text-muted);
+}
+
+.side-groups,
+.side-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.side-group + .side-group {
+  margin-top: 1.35rem;
+}
+
+.side-group-name {
+  margin: 0 0 0.55rem;
+  font-size: 0.92rem;
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.02em;
+}
+
+/* La línea vertical es la que hace visible la jerarquía: todo lo que
+   cuelga de ella pertenece a la rama de arriba. */
+.side-items {
+  padding-left: 0.85rem;
+  border-left: 1px solid var(--border);
+}
+
+.side-items li + li {
+  margin-top: 0.55rem;
+}
+
+.side-items a {
+  position: relative;
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: var(--weight-nav);
+  line-height: 1.35;
+}
+
+.side-items a:hover {
+  color: var(--accent);
+}
+
+/* El artículo abierto se marca con el mismo degradado de las pestañas. */
+.side-items a[aria-current='page'] {
+  font-weight: var(--weight-strong);
+}
+
+.side-items a[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -0.9rem;
+  top: 0.1em;
+  bottom: 0.1em;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #22d3ee 0%, #2fe0a8 100%);
+}
+
+.side-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* --- El botón que oculta y muestra el panel --- */
+
+.aside-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.aside-toggle:hover,
+.aside-toggle:focus-visible {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.aside-toggle svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  /* Apunta hacia arriba mientras la lista está desplegada: hacia donde
+     se recoge al pulsarlo. Plegada, gira y apunta abajo, que es de
+     donde la trae de vuelta. */
+  transition: transform 0.22s ease;
+}
+
+.aside-toggle[aria-expanded='false'] svg {
+  transform: rotate(180deg);
+}
+
+/* Por debajo de este ancho el margen que sobra es demasiado estrecho
+   para leer nada, así que el panel se pone encima del contenido, a lo
+   ancho de la columna y con las ramas en fila. */
+@media (max-width: 100rem) {
+  .with-aside {
+    /* Una sola columna, pero con el mismo ancho de lectura de siempre
+       y centrada: el contenido no se estira de lado a lado. */
+    grid-template-columns: min(100%, var(--page));
+    justify-content: center;
+    grid-template-areas:
+      'panel'
+      'main';
+  }
+
+  .with-aside > .side-panel {
+    justify-self: stretch;
+    width: auto;
+    position: static;
+    padding-inline: 1.5rem;
+    padding-bottom: 1.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .side-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 3.5rem;
+  }
+
+  .side-group + .side-group {
+    margin-top: 0;
+  }
+}
+
+/* =========================================================
    Resúmenes de papers
-   Estas páginas se componen con Computer Modern, la tipografía
-   de TeX, para que el texto y las fórmulas sean la misma letra.
-   El resto del sitio sigue en Inter.
+   Se componen como una hoja: la caja con contorno, el texto
+   justificado y la tipografía de TeX en su variante sans
+   (\textsf). Las fórmulas siguen en la CM con serifa.
    ========================================================= */
 
 .paper {
   font-family: var(--font-latex);
-  /* CMU tiene el ojo medio pequeño: al mismo tamaño nominal se lee
-     más chica que Inter, así que se compensa. */
-  font-size: 1.07em;
-  /* El interletraje negativo es un ajuste para Inter. En una serif
-     de trazo fino cierra el texto y lo ensucia. */
+  /* CMU Sans tiene el ojo grande: al mismo cuerpo se ve mayor que
+     Inter, así que va por debajo del tamaño base. */
+  font-size: 0.9em;
+  /* El interletraje negativo es un ajuste para Inter. */
   letter-spacing: normal;
   /* CMU solo tiene dos pesos reales, 400 y 700. Pedir 200 haría que
      el navegador sintetizara un trazo falso. */
   font-weight: 400;
 }
 
-.paper .post-header h1,
+/* La portada de un paper va centrada. */
+.paper .post-header {
+  text-align: center;
+}
+
+.paper .post-header h1 {
+  font-family: inherit;
+  font-size: 1.75em;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1.25;
+}
+
+.paper .post-header .description {
+  max-width: 54ch;
+  margin-inline: auto;
+  font-size: 1.02em;
+  text-wrap: balance;
+}
+
+.paper .post-meta {
+  justify-content: center;
+}
+
+/* El cuerpo, justificado y partido en sílabas, como lo compone TeX. */
+.paper .prose {
+  line-height: 1.6;
+  text-align: justify;
+  hyphens: auto;
+}
+
 .paper .prose h2,
 .paper .prose h3,
 .paper .prose h4,
@@ -1099,10 +1427,29 @@ main {
   font-family: inherit;
   font-weight: 700;
   letter-spacing: normal;
+  text-align: left;
 }
 
-.paper .prose {
-  line-height: 1.6;
+/* Nada de partir palabras ni justificar donde no toca. */
+.paper .prose h2,
+.paper .prose h3,
+.paper .prose h4,
+.paper .prose table,
+.paper .prose pre {
+  hyphens: none;
+  text-align: initial;
+}
+
+.paper .katex-display {
+  text-align: center;
+}
+
+/* En una columna estrecha, justificar abre huecos enormes entre
+   palabras. Por debajo de 40rem el texto vuelve a bandera. */
+@media (max-width: 40rem) {
+  .paper .prose {
+    text-align: left;
+  }
 }
 
 /* El código sigue en monoespaciada: ahí el ancho fijo es funcional. */
@@ -1111,7 +1458,7 @@ main {
 .paper kbd,
 .paper samp {
   font-family: var(--font-mono);
-  font-size: 0.88em;
+  font-size: 0.86em;
   letter-spacing: normal;
 }
 
@@ -1124,9 +1471,11 @@ main {
   letter-spacing: -0.02em;
 }
 
-/* Ya no hace falta agrandar KaTeX: es exactamente la misma letra. */
-.paper .katex {
-  font-size: 1em;
+/* La hoja se cierra en sí misma: el pie va dentro, sin sobresalir. */
+.paper .post-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  text-align: center;
 }
 
 /* =========================================================

@@ -10,23 +10,25 @@ const lang = Astro.params.lang as Lang;
 ---
 
 <BaseLayout lang={lang} title={SITE_NAME} description={t(lang, 'site.intro')}>
-  <section class="hero">
-    <p class="tagline">{t(lang, 'site.tagline')}</p>
-    <h1>Tensors &amp; Transistors</h1>
-    <p class="intro">{t(lang, 'site.intro')}</p>
-  </section>
+  <div class="wrap">
+    <section class="hero">
+      <p class="tagline">{t(lang, 'site.tagline')}</p>
+      <h1>Tensors &amp; Transistors</h1>
+      <p class="intro">{t(lang, 'site.intro')}</p>
+    </section>
 
-  <p class="eyebrow">{t(lang, 'home.explore')}</p>
-  <ul class="section-grid">
-    {
-      NAV_SECTIONS.map((s) => (
-        <li>
-          <a class="section-card" href={`/${lang}/${s}/`}>
-            <h3>{t(lang, `section.${s}.title` as 'section.blog.title')}</h3>
-            <p>{t(lang, `section.${s}.desc` as 'section.blog.desc')}</p>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+    <p class="eyebrow">{t(lang, 'home.explore')}</p>
+    <ul class="section-grid">
+      {
+        NAV_SECTIONS.map((s) => (
+          <li>
+            <a class="section-card" href={`/${lang}/${s}/`}>
+              <h3>{t(lang, `section.${s}.title` as 'section.blog.title')}</h3>
+              <p>{t(lang, `section.${s}.desc` as 'section.blog.desc')}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </BaseLayout>
