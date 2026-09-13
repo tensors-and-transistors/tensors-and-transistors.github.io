@@ -12,9 +12,11 @@ interface Props {
   altPath?: string;
   /** true cuando no existe traducción, para no declarar un hreflang falso. */
   hasTranslation?: boolean;
+  /** La portada: su hero ya lleva el logo, así que la cabecera oculta el suyo. */
+  home?: boolean;
 }
 
-const { lang, title, description, altPath, hasTranslation = true } = Astro.props;
+const { lang, title, description, altPath, hasTranslation = true, home = false } = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} — ${SITE_NAME}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -27,7 +29,7 @@ const altUrl = new URL(resolvedAlt, Astro.site);
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} class={home ? 'is-home' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

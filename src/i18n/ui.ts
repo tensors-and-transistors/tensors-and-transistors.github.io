@@ -14,7 +14,7 @@ export const NAV_SECTIONS = ['blog', 'papers'] as const;
  * Las ramas del panel lateral del blog, en el orden en que se muestran.
  * Cada artículo declara la suya en el frontmatter (`category`).
  */
-export const BLOG_CATEGORIES = ['deep-learning', 'hardware'] as const;
+export const BLOG_CATEGORIES = ['foundations', 'deep-learning', 'hardware'] as const;
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
 
 export type Lang = (typeof LANGS)[number];
@@ -35,16 +35,15 @@ export const ui = {
 
     'nav.blog': 'Blog técnico',
     'nav.tutorials': 'Tutoriales',
-    'nav.papers': 'Resúmenes',
+    'nav.papers': 'Explicaciones',
     'nav.home': 'Home',
-    'nav.news': 'Noticias',
-    'nav.newsLabel': 'Noticias — se abre en una pestaña nueva',
     'nav.menu': 'Abrir el menú',
 
     'aside.blog': 'Contenidos',
-    'aside.papers': 'Otros resúmenes',
-    'aside.empty': 'Todavía nada aquí.',
+    'aside.papers': 'Otras explicaciones',
+    'aside.empty': 'Pronto.',
     'aside.index': 'Índice',
+    'cat.foundations': 'Fundamentos',
     'cat.deep-learning': 'Deep Learning',
     'cat.hardware': 'Hardware',
 
@@ -54,7 +53,7 @@ export const ui = {
     'section.tutorials.title': 'Tutoriales',
     'section.tutorials.desc':
       'Guías paso a paso, reproducibles de principio a fin. Si no compila en tu máquina, es un bug nuestro.',
-    'section.papers.title': 'Resúmenes de papers',
+    'section.papers.title': 'Explicaciones',
     'section.papers.desc':
       'Investigación en deep learning y arquitectura de computadores, destilada a qué proponen, por qué importa y qué se puede usar hoy.',
 
@@ -73,11 +72,12 @@ export const ui = {
 
     'home.explore': 'Explora',
 
-    'news.title': 'Noticias',
-    'news.heading': 'En construcción',
-    'news.body':
-      'Estamos preparando un espacio dedicado a noticias técnicas sobre inteligencia artificial. Todavía no está listo.',
-    'news.back': 'Volver al inicio',
+    /* El titular lleva marcado porque dos palabras van en negrita.
+       Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
+    'hero.title': 'donde la <b>matemática</b><br>y el <b>metal</b> convergen',
+    'hero.blogDesc': 'Ideas desde cero, con los rodeos<br>que hacen que se entiendan.',
+    'hero.papersDesc': 'Rigor técnico,<br>fácil de digerir.',
+
   },
   en: {
     'site.tagline': 'Deep learning and hardware.',
@@ -86,16 +86,15 @@ export const ui = {
 
     'nav.blog': 'Technical blog',
     'nav.tutorials': 'Tutorials',
-    'nav.papers': 'Summaries',
+    'nav.papers': 'Explanations',
     'nav.home': 'Home',
-    'nav.news': 'News',
-    'nav.newsLabel': 'News — opens in a new tab',
     'nav.menu': 'Open the menu',
 
     'aside.blog': 'Contents',
-    'aside.papers': 'Other summaries',
-    'aside.empty': 'Nothing here yet.',
+    'aside.papers': 'Other explanations',
+    'aside.empty': 'Soon.',
     'aside.index': 'Index',
+    'cat.foundations': 'Fundamentos',
     'cat.deep-learning': 'Deep Learning',
     'cat.hardware': 'Hardware',
 
@@ -105,7 +104,7 @@ export const ui = {
     'section.tutorials.title': 'Tutorials',
     'section.tutorials.desc':
       'Step-by-step guides, reproducible end to end. If it does not build on your machine, that is our bug.',
-    'section.papers.title': 'Paper summaries',
+    'section.papers.title': 'Explanations',
     'section.papers.desc':
       'Deep learning and computer architecture research, distilled to what it proposes, why it matters, and what you can use today.',
 
@@ -124,11 +123,12 @@ export const ui = {
 
     'home.explore': 'Explore',
 
-    'news.title': 'News',
-    'news.heading': 'Under construction',
-    'news.body':
-      'We are building a space dedicated to technical news on artificial intelligence. It is not ready yet.',
-    'news.back': 'Back to home',
+    /* El titular lleva marcado porque dos palabras van en negrita.
+       Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
+    'hero.title': 'where <b>math</b> meets <b>metal</b>',
+    'hero.blogDesc': 'Ideas from scratch, with the detours<br>that make them stick.',
+    'hero.papersDesc': 'Technical rigor,<br>made easy-to-digest.',
+
   },
 } as const;
 

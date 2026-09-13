@@ -1,34 +1,99 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { LANGS, NAV_SECTIONS, SITE_NAME, t, type Lang } from '../../i18n/ui';
+import { LANGS, SITE_NAME, t, type Lang } from '../../i18n/ui';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
 }
 
 const lang = Astro.params.lang as Lang;
+
+/**
+ * Mosaico del hero: cuadrados y dígitos binarios.
+ *
+ * Se genera aquí, durante el build, y viaja como SVG dentro del HTML.
+ * No hay imagen que descargar ni JavaScript que ejecutar en el navegador,
+ * y al escalar no se pixela.
+ *
+ * El generador aleatorio es propio y con semilla fija: así el dibujo es
+ * EXACTAMENTE el mismo en cada build. Con `Math.random()` cambiaría en
+ * cada despliegue y el sitio parecería inestable.
+ */
+function mosaic(width: number, height: number, cell: number, seed: number): string {
+  let state = seed >>> 0;
+  const rand = () => ((state = (state * 1664525 + 1013904223) >>> 0) / 4294967296);
+
+  const cols = Math.ceil(width / cell);
+  const rows = Math.ceil(height / cell);
+  const side = cell - Math.max(2, cell * 0.2);
+  const parts: string[] = [];
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const v = rand();
+      const px = x * cell;
+      const py = y * cell;
+      const o = (base: number, range: number) => (base + rand() * range).toFixed(2);
+
+      if (v > 0.94) {
+        parts.push(
+          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="#5eead4" opacity="${o(0.12, 0.26)}"/>`
+        );
+      } else if (v > 0.88) {
+        parts.push(
+          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="#7dd3fc" opacity="${o(0.1, 0.22)}"/>`
+        );
+      } else if (v > 0.8) {
+        parts.push(
+          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="none" stroke="#a5f3fc" stroke-width=".8" opacity="${o(0.14, 0.26)}"/>`
+        );
+      } else if (v > 0.28) {
+        parts.push(
+          `<text x="${px + side / 2}" y="${py + side / 2 + 3.2}" text-anchor="middle" font-size="${(cell * 0.5).toFixed(1)}" fill="#a5f3fc" opacity="${o(0.12, 0.32)}">${rand() > 0.5 ? 1 : 0}</text>`
+        );
+      }
+    }
+  }
+
+  return parts.join('');
+}
+
+const MOSAIC = mosaic(1440, 620, 22, 91);
 ---
 
-<BaseLayout lang={lang} title={SITE_NAME} description={t(lang, 'site.intro')}>
-  <div class="wrap">
-    <section class="hero">
-      <p class="tagline">{t(lang, 'site.tagline')}</p>
-      <h1>Tensors &amp; Transistors</h1>
-      <p class="intro">{t(lang, 'site.intro')}</p>
-    </section>
+<BaseLayout lang={lang} title={SITE_NAME} description={t(lang, 'site.intro')} home>
+  <section class="hero-x">
+    <!-- Dos capas de fondo: el degradado y el mosaico. Las dos decorativas,
+         así que se ocultan a los lectores de pantalla. -->
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-mosaic" aria-hidden="true">
+      <svg viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" role="presentation">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" set:html={MOSAIC} />
+      </svg>
+    </div>
 
-    <p class="eyebrow">{t(lang, 'home.explore')}</p>
-    <ul class="section-grid">
-      {
-        NAV_SECTIONS.map((s) => (
-          <li>
-            <a class="section-card" href={`/${lang}/${s}/`}>
-              <h3>{t(lang, `section.${s}.title` as 'section.blog.title')}</h3>
-              <p>{t(lang, `section.${s}.desc` as 'section.blog.desc')}</p>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+    <div class="hero-inner">
+      <img
+        class="hero-logo"
+        src="/tnt_logo.svg"
+        alt={SITE_NAME}
+        width="1882"
+        height="666"
+        fetchpriority="high"
+      />
+      <h1 set:html={t(lang, 'hero.title')} />
+
+      <div class="hero-cta">
+        <a href={`/${lang}/blog/`}>
+          <span class="hero-cta-label">{t(lang, 'nav.blog')}</span>
+          <span class="hero-cta-desc" set:html={t(lang, 'hero.blogDesc')} />
+        </a>
+        <a href={`/${lang}/papers/`}>
+          <span class="hero-cta-label">{t(lang, 'nav.papers')}</span>
+          <span class="hero-cta-desc" set:html={t(lang, 'hero.papersDesc')} />
+        </a>
+      </div>
+    </div>
+  </section>
+
 </BaseLayout>

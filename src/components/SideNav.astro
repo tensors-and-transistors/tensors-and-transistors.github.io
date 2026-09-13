@@ -26,7 +26,7 @@ const groups =
     ? BLOG_CATEGORIES.map((cat) => ({
         label: t(lang, `cat.${cat}` as 'cat.hardware'),
         items: entries.filter((e) => e.data.category === cat),
-      })).filter((g) => g.items.length > 0)
+      }))
     : [{ label: null, items: entries }];
 ---
 
@@ -45,6 +45,7 @@ const groups =
           <li class="side-group">
             {group.label && <p class="side-group-name">{group.label}</p>}
             <ul class="side-items">
+              {group.items.length === 0 && <li class="side-soon">{t(lang, 'aside.empty')}</li>}
               {group.items.map((entry) => {
                 const href = linkFor(entry.id);
                 return (

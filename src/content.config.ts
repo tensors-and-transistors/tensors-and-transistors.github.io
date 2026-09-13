@@ -25,7 +25,7 @@ const postSchema = z.object({
    * Solo para el blog: en qué rama del panel lateral se cuelga.
    * El orden de las ramas lo fija `BLOG_CATEGORIES` en i18n/ui.ts.
    */
-  category: z.enum(['deep-learning', 'hardware']).optional(),
+  category: z.enum(['foundations', 'deep-learning', 'hardware']).optional(),
 });
 
 /** Cada sección lee los .md de su propia carpeta. */

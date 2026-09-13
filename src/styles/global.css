@@ -61,6 +61,21 @@
 }
 
 /* ---------------------------------------------------------
+   Source Serif 4 — variable, alojada aquí. Se usa SOLO en el
+   titular de la portada, así que solo se descarga ahí.
+   --------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Source Serif Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('/fonts/source-serif-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+}
+
+/* ---------------------------------------------------------
    CMU Sans — Computer Modern Sans, la familia que TeX usa con
    \textsf. Solo se emplea en los resúmenes de papers, y solo se
    descarga en esas páginas. Las fórmulas siguen en la CM con
@@ -145,6 +160,9 @@
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
+  /* Serifa de display: el titular de la portada, y nada más. */
+  --font-display: 'Source Serif Variable', Georgia, 'Times New Roman', serif;
+
   /* Tipografía de los resúmenes de papers: la de TeX, en sans. */
   --font-latex: 'CMU Sans', 'Latin Modern Sans', 'Computer Modern Sans',
     ui-sans-serif, system-ui, sans-serif;
@@ -211,6 +229,14 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* En móvil, 100vh cuenta también la barra del navegador y deja la
+   página un poco más alta que la pantalla. `svh` mide lo que se ve. */
+@supports (min-height: 100svh) {
+  body {
+    min-height: 100svh;
+  }
 }
 
 /* Jerarquía tipográfica: H1 Medium, H2 y siguientes Regular. */
@@ -322,25 +348,6 @@ main {
   }
 }
 
-/* Franja de color sobre la cabecera. Arte nativo: un solo degradado
-   CSS, sin imagen ni desenfoque. Los extremos mueren en negro para
-   que no choque contra los bordes de la pantalla. */
-.site-header::before {
-  content: '';
-  display: block;
-  height: 5px;
-  background: linear-gradient(
-    90deg,
-    #000000 0%,
-    #0a1a5c 9%,
-    #1450c8 26%,
-    #22d3ee 47%,
-    #2fe0a8 64%,
-    #1450c8 82%,
-    #0a1a5c 92%,
-    #000000 100%
-  );
-}
 
 /* Tres zonas: marca a la izquierda, secciones al centro, acciones a la
    derecha. Las columnas laterales son 1fr cada una, así que el menú
@@ -353,7 +360,7 @@ main {
   align-items: center;
   gap: 1.5rem;
   width: 100%;
-  padding: 0.85rem clamp(1.25rem, 3.5vw, 3rem);
+  padding: 0.79rem clamp(1.25rem, 3.5vw, 3rem);
   /* La cabecera cambia de forma al hacer scroll: que el cambio se note
      como un movimiento, no como un salto. */
   transition: padding 0.25s ease;
@@ -681,34 +688,252 @@ main {
   transform: translateY(0);
 }
 
-/* ---------- Portada ---------- */
+/* ---------- Portada: el hero ----------
+   Una banda oscura a sangre, con el degradado de marca muriendo en
+   negro por los dos extremos y un mosaico de cuadrados y binario
+   encima. Todo nativo: degradados CSS y un SVG generado en el build.
+   -------------------------------------------------------------- */
 
-.hero {
-  padding-block: 1rem 3rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 3rem;
+.hero-x {
+  position: relative;
+  overflow: hidden;
+  min-height: 37rem;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  color: #ffffff;
+  /* Respaldo mientras pintan las capas de arriba. */
+  background: #000000;
 }
 
-.hero h1 {
-  font-size: clamp(2rem, 5vw, 3.1rem);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin: 0 0 1rem;
+/* El color cruza en diagonal y se apaga a negro en los dos extremos.
+   Lleva más escalones de los necesarios a propósito: entre dos tonos
+   muy cercanos el ojo dibuja una línea que no existe (bandas de Mach),
+   y cuantos más pasos intermedios, menos se nota esa frontera. */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    100deg,
+    #000000 0%,
+    #000a12 6%,
+    #00121f 12%,
+    #032739 20%,
+    #063a55 28%,
+    #08607a 38%,
+    #0a7d92 46%,
+    #0f9a9c 53%,
+    #16b09a 59%,
+    #12a0a0 65%,
+    #0b7f96 72%,
+    #07496a 80%,
+    #032739 86%,
+    #00121f 92%,
+    #000000 100%
+  );
 }
 
-.hero .tagline {
-  color: var(--accent);
-  font-size: 0.9rem;
-  margin: 0 0 1.5rem;
-  letter-spacing: 0.02em;
+/* La máscara abre un óvalo limpio en el centro: el mosaico solo
+   densifica hacia los bordes y nunca compite con el texto. */
+.hero-mosaic {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  mask-image: radial-gradient(
+    77% 75% at 50% 50%,
+    transparent 0%,
+    transparent 49%,
+    rgba(0, 0, 0, 0.27) 68%,
+    rgba(0, 0, 0, 0.72) 87%,
+    #000000 98%
+  );
+  -webkit-mask-image: radial-gradient(
+    77% 75% at 50% 50%,
+    transparent 0%,
+    transparent 49%,
+    rgba(0, 0, 0, 0.27) 68%,
+    rgba(0, 0, 0, 0.72) 87%,
+    #000000 98%
+  );
 }
 
-.hero p.intro {
-  color: var(--text-dim);
+.hero-mosaic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 60rem;
+  margin-inline: auto;
+  padding: 4rem 1.5rem 8rem;
+}
+
+.hero-logo {
+  height: 4.6rem;
+  width: auto;
+  display: block;
+  margin: 0 auto 5.5rem;
+}
+
+.hero-x h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4.3rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  /* Solo dos palabras van en negrita; el resto, en el peso más fino. */
+  font-weight: 250;
+  margin: 0 0 8rem;
+}
+
+.hero-x h1 b {
+  font-weight: 600;
+}
+
+
+/* Enlaces, no botones: sin relleno ni contorno, solo el rótulo y su
+   línea. Al pasar el cursor la línea pasa al degradado de marca,
+   engorda y el texto se aclara del todo. */
+.hero-cta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3.5rem;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.hero-cta a {
+  display: block;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* La línea vive bajo el rótulo, no bajo toda la columna: marca la
+   palabra que se pulsa, no el bloque entero. */
+.hero-cta-label {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
   font-size: 1.15rem;
-  max-width: 68ch;
-  margin: 0 auto;
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.015em;
+}
+
+.hero-cta-label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.45);
+  transition: height 0.2s ease, background 0.2s ease;
+}
+
+.hero-cta-desc {
+  display: block;
+  margin-top: 1.35rem;
+  font-size: 1rem;
+  font-weight: var(--weight-nav);
+  line-height: 1.6;
+  opacity: 0.78;
+}
+
+.hero-cta a:hover,
+.hero-cta a:focus-visible {
+  color: #ffffff;
+}
+
+.hero-cta a:hover .hero-cta-label::after,
+.hero-cta a:focus-visible .hero-cta-label::after {
+  height: 2px;
+  background: linear-gradient(90deg, #22d3ee 0%, #2fe0a8 100%);
+}
+
+/* El hero ocupa la portada entera: pegado a la cabecera y al pie, y
+   estirándose para llenar lo que sobre de pantalla. Sin `flex` aquí,
+   `main` crece pero el hero no, y queda una banda blanca debajo. */
+.is-home main {
+  padding-block: 0;
+  display: flex;
+}
+
+.is-home .hero-x {
+  flex: 1;
+  /* Sin alto mínimo propio: ocupa justo lo que queda de pantalla, ni
+     más (aparecería scroll) ni menos (quedaría blanco debajo). */
+  min-height: 0;
+}
+
+/* En la portada el pie no va sobre blanco: sube sobre el hero y se
+   escribe en claro, dentro de la zona de color. */
+.is-home .site-footer {
+  position: relative;
+  z-index: 3;
+  margin-top: -4rem;
+  background: transparent;
+  border-top: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.is-home .site-footer a {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.is-home .site-footer a:hover {
+  color: #ffffff;
+}
+
+/* En la portada el logo preside el hero; repetirlo en la barra sobra.
+   Se oculta con `opacity`, no con `visibility`, por dos razones: la
+   opacidad se puede animar, y el elemento sigue existiendo para las
+   view transitions, así que al salir de la portada el logo entra con
+   un fundido en vez de aparecer de golpe. */
+.is-home .site-header .brand {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Con el menú de móvil desplegado la barra vuelve a necesitar su marca:
+   ahí el hero ya no se ve. */
+.is-home .site-header.nav-open .brand {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 48rem) {
+  .hero-x {
+    min-height: auto;
+  }
+
+  .hero-inner {
+    padding: 3.5rem 1.25rem 4rem;
+  }
+
+  .hero-logo {
+    height: 3.2rem;
+    margin-bottom: 2.6rem;
+  }
+
+  .hero-x h1 {
+    margin-bottom: 2.8rem;
+  }
+
+  /* En vertical los dos accesos se apilan. */
+  .hero-cta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+  }
 }
 
 /* ---------- Rejilla de secciones (portada) ---------- */
@@ -984,7 +1209,8 @@ main {
 
 .site-footer .wrap {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -1128,6 +1354,20 @@ main {
     animation: none;
   }
 
+  /* La marca se captura aparte de la cabecera, así que puede fundirse
+     por su cuenta: al entrar y al salir de la portada aparece y
+     desaparece despacio, mientras el resto de la barra no se mueve. */
+  .brand {
+    view-transition-name: tnt-brand;
+    transition: opacity 0.35s ease;
+  }
+
+  ::view-transition-old(tnt-brand),
+  ::view-transition-new(tnt-brand) {
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+  }
+
   /* La pastilla del idioma: solo se desplaza, sin fundido. La curva
      entra rápido y frena largo, con un punto de control por encima de 1
      para que llegue con un asentamiento mínimo en lugar de un tope seco.
@@ -1200,6 +1440,7 @@ main {
   top: 1.5rem;
 }
 
+/* Plegado: desaparece la lista, el título se queda. */
 .with-aside.aside-hidden .side-groups,
 .with-aside.aside-hidden .side-empty {
   display: none;
@@ -1289,10 +1530,27 @@ main {
   background: linear-gradient(180deg, #22d3ee 0%, #2fe0a8 100%);
 }
 
+.side-soon {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: var(--weight-nav);
+  font-style: italic;
+  opacity: 0.55;
+}
+
 .side-empty {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.85rem;
+}
+
+/* Rama todavía sin artículos: se anuncia, no se esconde. */
+.side-soon {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: var(--weight-nav);
+  font-style: italic;
+  opacity: 0.55;
 }
 
 /* --- El botón que oculta y muestra el panel --- */
