@@ -96,4 +96,63 @@ const MOSAIC = mosaic(1440, 620, 22, 91);
     </div>
   </section>
 
+  <script is:inline>
+    // Las dos palabras en negrita del titular se "descifran": arrancan
+    // como ruido y van fijando letra a letra hasta la palabra final.
+    //
+    // Sin librerías: un requestAnimationFrame y texto. El ancho se
+    // bloquea antes de empezar para que el resto de la frase no baile
+    // mientras cambian los caracteres.
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var words = document.querySelectorAll('.hero-x h1 b');
+      if (!words.length) return;
+
+      var POOL = 'abcdefghijklmnopqrstuvwxyz0101';
+      // Fotogramas que tarda cada letra en fijarse, y retraso de la
+      // segunda palabra respecto a la primera.
+      var PER_LETTER = 5;
+      var STAGGER = 14;
+
+      function scramble(el, delay) {
+        var target = el.textContent;
+        var box = el.getBoundingClientRect();
+
+        el.style.display = 'inline-block';
+        el.style.minWidth = box.width + 'px';
+        el.style.textAlign = 'center';
+
+        var frame = 0;
+        var done = delay + target.length * PER_LETTER;
+
+        function tick() {
+          var out = '';
+          for (var i = 0; i < target.length; i++) {
+            var settlesAt = delay + i * PER_LETTER;
+            out += frame >= settlesAt
+              ? target[i]
+              : POOL[(Math.random() * POOL.length) | 0];
+          }
+          el.textContent = out;
+
+          if (frame++ < done) requestAnimationFrame(tick);
+          else el.textContent = target;
+        }
+
+        tick();
+      }
+
+      // Las fuentes tienen que estar listas: si no, se mide un ancho que
+      // luego cambia y la frase da un salto.
+      var go = function () {
+        words.forEach(function (el, i) {
+          scramble(el, i * STAGGER);
+        });
+      };
+
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+      else window.addEventListener('load', go);
+    })();
+  </script>
 </BaseLayout>

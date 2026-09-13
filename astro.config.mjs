@@ -13,6 +13,17 @@ export default defineConfig({
     format: 'directory',
   },
 
+  // Solo afecta al servidor de desarrollo, nunca al sitio publicado.
+  vite: {
+    server: {
+      // Vite rechaza las peticiones cuyo dominio no reconoce. Al abrir
+      // un túnel para ver la web en el móvil, la petición llega con el
+      // dominio del túnel y responde "Blocked request". Esta lista lo
+      // permite, para poder probar en un teléfono de verdad.
+      allowedHosts: ['.trycloudflare.com', '.ngrok-free.app', '.loca.lt'],
+    },
+  },
+
   markdown: {
     // Matemáticas en los artículos: $inline$ y $$en bloque$$.
     // remark-math reconoce la sintaxis, rehype-katex la convierte en HTML

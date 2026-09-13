@@ -216,6 +216,8 @@ html {
 
 body {
   margin: 0;
+  /* Referencia para el pie de la portada, que va en `absolute`. */
+  position: relative;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
@@ -360,7 +362,7 @@ main {
   align-items: center;
   gap: 1.5rem;
   width: 100%;
-  padding: 0.79rem clamp(1.25rem, 3.5vw, 3rem);
+  padding: 0.6rem clamp(1.25rem, 3.5vw, 3rem);
   /* La cabecera cambia de forma al hacer scroll: que el cambio se note
      como un movimiento, no como un salto. */
   transition: padding 0.25s ease;
@@ -481,7 +483,7 @@ main {
 /* El SVG del logo ya viene en blanco: se ve sobre la cabecera negra.
    Solo fijamos la altura; el ancho se calcula solo. */
 .brand img {
-  height: 2.6rem;
+  height: 2.4rem;
   width: auto;
   display: block;
   transition: height 0.25s ease;
@@ -842,9 +844,12 @@ main {
   display: block;
   margin-top: 1.35rem;
   font-size: 1rem;
-  font-weight: var(--weight-nav);
+  /* Blanco pleno y un peso por encima: sobre el degradado, el gris
+     translúcido se perdía. */
+  color: #ffffff;
+  font-weight: var(--weight-strong);
   line-height: 1.6;
-  opacity: 0.78;
+  opacity: 1;
 }
 
 .hero-cta a:hover,
@@ -873,12 +878,18 @@ main {
   min-height: 0;
 }
 
-/* En la portada el pie no va sobre blanco: sube sobre el hero y se
-   escribe en claro, dentro de la zona de color. */
+/* En la portada el pie no va sobre blanco: se apoya sobre el hero y se
+   escribe en claro, dentro de la zona de color.
+   Va en `absolute`, no con un margen negativo: el margen negativo lo
+   sube visualmente pero el cuerpo sigue reservando su altura, y esa
+   reserva es la franja blanca que quedaba al final de la página.
+   Fuera del flujo no reserva nada, y el hero llena hasta el borde. */
 .is-home .site-footer {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 3;
-  margin-top: -4rem;
   background: transparent;
   border-top: none;
   color: rgba(255, 255, 255, 0.85);
@@ -916,23 +927,35 @@ main {
     min-height: auto;
   }
 
+  /* Todo se aprieta para que la portada entre en una pantalla de
+     teléfono sin obligar a bajar. */
   .hero-inner {
-    padding: 3.5rem 1.25rem 4rem;
+    padding: 2rem 1.25rem 4.5rem;
   }
 
   .hero-logo {
-    height: 3.2rem;
-    margin-bottom: 2.6rem;
+    height: 2.7rem;
+    margin-bottom: 2rem;
   }
 
   .hero-x h1 {
-    margin-bottom: 2.8rem;
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+    margin-bottom: 2.4rem;
   }
 
   /* En vertical los dos accesos se apilan. */
   .hero-cta {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2.25rem;
+    gap: 1.6rem;
+  }
+
+  .hero-cta-label {
+    font-size: 1.05rem;
+  }
+
+  .hero-cta-desc {
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
   }
 }
 
