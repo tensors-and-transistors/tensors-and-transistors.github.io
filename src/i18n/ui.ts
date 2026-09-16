@@ -76,7 +76,7 @@ export const ui = {
        Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
     'hero.title': 'donde la <b>matemática</b><br>y el <b>metal</b> convergen',
     'hero.blogDesc': 'Ideas desde cero, con los rodeos<br>que hacen que se entiendan.',
-    'hero.papersDesc': 'Rigor técnico,<br>fácil de digerir.',
+    'hero.papersDesc': 'Rigor técnico, fácil de digerir.',
 
   },
   en: {
@@ -125,9 +125,9 @@ export const ui = {
 
     /* El titular lleva marcado porque dos palabras van en negrita.
        Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
-    'hero.title': 'where <b>math</b> meets <b>metal</b>',
+    'hero.title': 'where <b>math</b><br>meets <b>metal</b>',
     'hero.blogDesc': 'Ideas from scratch, with the detours<br>that make them stick.',
-    'hero.papersDesc': 'Technical rigor,<br>made easy-to-digest.',
+    'hero.papersDesc': 'Technical rigor, made easy-to-digest.',
 
   },
 } as const;

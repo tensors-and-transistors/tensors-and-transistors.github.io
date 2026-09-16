@@ -19,47 +19,98 @@ const entries = (await getCollection(section))
 
 const linkFor = (id: string) => `/${lang}/${section}/${id.split('/').slice(1).join('/')}/`;
 
-// El blog se organiza en ramas; el resto de secciones es una lista plana.
-// Un grupo sin artículos no se dibuja: el panel nunca muestra ramas vacías.
+// El blog se organiza en ramas; el resto de secciones es una sola.
+// Cada rama lleva su propio título y su propio plegado, así que la lista
+// plana se envuelve en una rama única en vez de quedarse suelta: de ese
+// modo todas las secciones se comportan igual.
 const groups =
   section === 'blog'
     ? BLOG_CATEGORIES.map((cat) => ({
         label: t(lang, `cat.${cat}` as 'cat.hardware'),
         items: entries.filter((e) => e.data.category === cat),
       }))
-    : [{ label: null, items: entries }];
+    : [{ label: t(lang, `aside.${section}` as 'aside.blog'), items: entries }];
+
+// El encabezado del panel solo aparece cuando hay varias ramas debajo;
+// con una sola, repetiría el mismo texto dos veces seguidas.
+const showHead = groups.length > 1;
 ---
 
 <aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
-  <div class="side-head">
-    <p class="side-title">{t(lang, `aside.${section}` as 'aside.blog')}</p>
-    <AsideToggle lang={lang} />
-  </div>
+  <!-- Fuera del recorte: el tirador debe seguir a la vista con el
+       panel cerrado, que es justo cuando hace falta. -->
+  <AsideToggle lang={lang} />
 
-  {
-    groups.length === 0 ? (
-      <p class="side-empty">{t(lang, 'aside.empty')}</p>
-    ) : (
+  <div class="side-panel-clip">
+    <div class="side-panel-inner">
+      {
+        showHead && (
+          <div class="side-head">
+            <p class="side-title">{t(lang, `aside.${section}` as 'aside.blog')}</p>
+          </div>
+        )
+      }
+
       <ul class="side-groups" id="side-panel-list">
-        {groups.map((group) => (
-          <li class="side-group">
-            {group.label && <p class="side-group-name">{group.label}</p>}
-            <ul class="side-items">
-              {group.items.length === 0 && <li class="side-soon">{t(lang, 'aside.empty')}</li>}
-              {group.items.map((entry) => {
-                const href = linkFor(entry.id);
-                return (
-                  <li>
-                    <a href={href} aria-current={href === current ? 'page' : undefined}>
-                      {entry.data.title}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
-        ))}
+        {
+          groups.map((group, i) => (
+            <li class="side-group">
+              <button
+                type="button"
+                class="side-group-name"
+                aria-expanded="true"
+                aria-controls={`side-group-${i}`}
+              >
+                <span>{group.label}</span>
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                  <path
+                    d="M3.75 9.75 8 5.5l4.25 4.25"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+
+              <div class="side-group-body" id={`side-group-${i}`}>
+                <ul class="side-items">
+                  {group.items.length === 0 && <li class="side-soon">{t(lang, 'aside.empty')}</li>}
+                  {group.items.map((entry) => {
+                    const href = linkFor(entry.id);
+                    return (
+                      <li>
+                        <a href={href} aria-current={href === current ? 'page' : undefined}>
+                          {entry.data.title}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
       </ul>
-    )
-  }
+    </div>
+  </div>
 </aside>
+
+<script is:inline>
+  // Plegar una rama del índice. Como el panel entero, no se recuerda:
+  // al entrar en una sección todo está a la vista.
+  (function () {
+    var panel = document.getElementById('side-panel');
+    if (!panel) return;
+
+    panel.addEventListener('click', function (e) {
+      var button = e.target.closest('.side-group-name');
+      if (!button) return;
+
+      var open = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', open ? 'false' : 'true');
+      button.parentElement.classList.toggle('is-collapsed', open);
+    });
+  })();
+</script>

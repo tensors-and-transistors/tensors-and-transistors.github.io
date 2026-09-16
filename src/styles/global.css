@@ -160,6 +160,27 @@
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
+  /* El degradado de la portada. Vive en una variable porque lo pintan
+     dos elementos: la capa del hero y el propio <body> de la portada. */
+  --hero-gradient: linear-gradient(
+    100deg,
+    #000000 0%,
+    #000a12 6%,
+    #00121f 12%,
+    #032739 20%,
+    #063a55 28%,
+    #08607a 38%,
+    #0a7d92 46%,
+    #0f9a9c 53%,
+    #16b09a 59%,
+    #12a0a0 65%,
+    #0b7f96 72%,
+    #07496a 80%,
+    #032739 86%,
+    #00121f 92%,
+    #000000 100%
+  );
+
   /* Serifa de display: el titular de la portada, y nada más. */
   --font-display: 'Source Serif Variable', Georgia, 'Times New Roman', serif;
 
@@ -239,6 +260,24 @@ body {
   body {
     min-height: 100svh;
   }
+}
+
+/* La portada usa `dvh`, no `svh`. `svh` es la pantalla CON la barra del
+   navegador desplegada; en cuanto esa barra se retrae, la ventana crece
+   y esos píxeles de más quedaban en blanco debajo del hero. `dvh` sigue
+   a la ventana en vivo, y como la portada no hace scroll, no hay saltos.
+
+   Además el degradado se pinta también en el <body>: el fondo del body
+   cubre todo el lienzo, incluido el rebote al arrastrar. Así, pase lo
+   que pase con la barra del navegador, debajo nunca hay blanco. */
+@supports (min-height: 100dvh) {
+  .is-home body {
+    min-height: 100dvh;
+  }
+}
+
+.is-home body {
+  background: var(--hero-gradient);
 }
 
 /* Jerarquía tipográfica: H1 Medium, H2 y siguientes Regular. */
@@ -512,7 +551,7 @@ main {
   position: relative;
   color: var(--header-muted);
   text-decoration: none;
-  font-size: 0.98rem;
+  font-size: 0.94rem;
   font-weight: var(--weight-nav);
   letter-spacing: -0.02em;
   padding-block: 0.25rem;
@@ -718,24 +757,7 @@ main {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(
-    100deg,
-    #000000 0%,
-    #000a12 6%,
-    #00121f 12%,
-    #032739 20%,
-    #063a55 28%,
-    #08607a 38%,
-    #0a7d92 46%,
-    #0f9a9c 53%,
-    #16b09a 59%,
-    #12a0a0 65%,
-    #0b7f96 72%,
-    #07496a 80%,
-    #032739 86%,
-    #00121f 92%,
-    #000000 100%
-  );
+  background: var(--hero-gradient);
 }
 
 /* La máscara abre un óvalo limpio en el centro: el mosaico solo
@@ -762,6 +784,24 @@ main {
   );
 }
 
+/* Viñeta: sin la franja negra de la cabecera, el degradado llegaba a
+   los cuatro bordes y la portada se veía lavada. Esto oscurece las
+   esquinas y devuelve el marco sin tapar el color del centro. */
+.hero-x::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    115% 88% at 50% 50%,
+    rgba(0, 0, 0, 0) 32%,
+    rgba(0, 0, 0, 0.18) 62%,
+    rgba(0, 0, 0, 0.45) 84%,
+    rgba(0, 0, 0, 0.62) 100%
+  );
+}
+
 .hero-mosaic svg {
   display: block;
   width: 100%;
@@ -774,14 +814,41 @@ main {
   width: 100%;
   max-width: 60rem;
   margin-inline: auto;
-  padding: 4rem 1.5rem 8rem;
+  padding: 3rem 1.5rem 5.5rem;
 }
 
 .hero-logo {
-  height: 4.6rem;
+  height: 5.4rem;
   width: auto;
   display: block;
-  margin: 0 auto 5.5rem;
+  margin: 0 auto 4rem;
+  /* Entra solo, una vez: desenfocado y pequeño, y se asienta. El
+     desenfoque es lo que hace visible la aparición; solo con opacidad
+     apenas se notaba. */
+  animation: hero-logo-in 1.4s cubic-bezier(0.16, 0.8, 0.28, 1) both;
+}
+
+@keyframes hero-logo-in {
+  from {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(-1.6rem) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+/* Quien pide menos movimiento no lo recibe. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo {
+    animation: none;
+  }
 }
 
 .hero-x h1 {
@@ -791,7 +858,7 @@ main {
   letter-spacing: -0.02em;
   /* Solo dos palabras van en negrita; el resto, en el peso más fino. */
   font-weight: 250;
-  margin: 0 0 8rem;
+  margin: 0 0 5.5rem;
 }
 
 .hero-x h1 b {
@@ -799,68 +866,73 @@ main {
 }
 
 
-/* Enlaces, no botones: sin relleno ni contorno, solo el rótulo y su
-   línea. Al pasar el cursor la línea pasa al degradado de marca,
-   engorda y el texto se aclara del todo. */
+/* Dos tarjetas: cuadrado de esquinas suaves, vidrio sobre el degradado
+   y arriba una ilustración de píxeles. Al pasar el cursor la tarjeta
+   sube un poco y el marco se aclara. */
 .hero-cta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 3.5rem;
-  max-width: 46rem;
+  gap: 2rem;
+  max-width: 44rem;
   margin-inline: auto;
 }
 
 .hero-cta a {
   display: block;
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-/* La línea vive bajo el rótulo, no bajo toda la columna: marca la
-   palabra que se pulsa, no el bloque entero. */
-.hero-cta-label {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 0.5rem;
-  font-size: 1.15rem;
-  font-weight: var(--weight-strong);
-  letter-spacing: -0.015em;
-}
-
-.hero-cta-label::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.45);
-  transition: height 0.2s ease, background 0.2s ease;
-}
-
-.hero-cta-desc {
-  display: block;
-  margin-top: 1.35rem;
-  font-size: 1rem;
-  /* Blanco pleno y un peso por encima: sobre el degradado, el gris
-     translúcido se perdía. */
+  /* Sin relleno: el dibujo ocupa el ancho entero y el texto trae el
+     suyo. El recorte lo hace la tarjeta, que redondea las esquinas. */
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
   color: #ffffff;
-  font-weight: var(--weight-strong);
-  line-height: 1.6;
-  opacity: 1;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.25s ease, background-color 0.25s ease;
 }
 
 .hero-cta a:hover,
 .hero-cta a:focus-visible {
-  color: #ffffff;
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.13);
 }
 
-.hero-cta a:hover .hero-cta-label::after,
-.hero-cta a:focus-visible .hero-cta-label::after {
-  height: 2px;
-  background: linear-gradient(90deg, #22d3ee 0%, #2fe0a8 100%);
+/* La ilustración no es una imagen ni un SVG: son capas de degradados.
+   Debajo, manchas de color de la paleta que se cruzan; encima, una
+   rejilla fina de líneas oscuras que parte ese color en celdas de 4px.
+   El resultado es el mismo efecto de una pantalla de puntos, sin un
+   solo byte de descarga ni miles de rectángulos en el HTML. */
+.hero-card-art {
+  display: block;
+  aspect-ratio: 3 / 1;
+  /* A sangre: la ilustración llega a los tres bordes de la tarjeta. */
+  margin: 0;
+  line-height: 0;
+}
+
+.hero-card-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-cta-label {
+  display: block;
+  padding: 0.85rem 0.9rem 0;
+  text-align: center;
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.hero-cta-desc {
+  display: block;
+  margin-top: 0.2rem;
+  padding: 0 0.9rem 0.95rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: var(--weight-nav);
+  line-height: 1.35;
 }
 
 /* El hero ocupa la portada entera: pegado a la cabecera y al pie, y
@@ -905,6 +977,30 @@ main {
   color: #ffffff;
 }
 
+/* En la portada no hay barra: la franja negra partía el degradado en
+   dos y la navegación ya está en las tarjetas del centro. Queda solo el
+   selector de idioma, flotando sobre el color. La cabecera sale del
+   flujo para que el hero empiece en el borde mismo de la pantalla. */
+.is-home .site-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+}
+
+.is-home .site-nav,
+.is-home .nav-toggle {
+  display: none;
+}
+
+/* Sin las pestañas, la rejilla de tres zonas se queda con dos: la marca
+   (invisible aquí) y las acciones. Sin esto el selector de idioma se iba
+   al centro, porque ocupaba la pista del medio. */
+.is-home .header-bar {
+  grid-template-columns: 1fr auto;
+}
+
 /* En la portada el logo preside el hero; repetirlo en la barra sobra.
    Se oculta con `opacity`, no con `visibility`, por dos razones: la
    opacidad se puede animar, y el elemento sigue existiendo para las
@@ -930,23 +1026,29 @@ main {
   /* Todo se aprieta para que la portada entre en una pantalla de
      teléfono sin obligar a bajar. */
   .hero-inner {
-    padding: 2rem 1.25rem 4.5rem;
+    /* El relleno de arriba deja sitio al selector de idioma, que ahora
+       flota sobre el color en vez de vivir en una barra. */
+    padding: 3.6rem 1.25rem 4rem;
   }
 
   .hero-logo {
-    height: 2.7rem;
-    margin-bottom: 2rem;
+    height: 4rem;
+    margin-bottom: 1.6rem;
   }
 
   .hero-x h1 {
     font-size: clamp(1.9rem, 9vw, 2.6rem);
-    margin-bottom: 2.4rem;
+    margin-bottom: 2rem;
   }
 
-  /* En vertical los dos accesos se apilan. */
+  /* En vertical las dos tarjetas se apilan. */
   .hero-cta {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.6rem;
+    gap: 1.1rem;
+    /* Más angostas que la columna de texto: en vertical, una tarjeta a
+       todo el ancho del teléfono se lee como una franja, no como una
+       tarjeta. */
+    max-width: 20rem;
   }
 
   .hero-cta-label {
@@ -954,8 +1056,8 @@ main {
   }
 
   .hero-cta-desc {
-    margin-top: 0.7rem;
-    font-size: 0.95rem;
+    margin-top: 0.4rem;
+    font-size: 0.92rem;
   }
 }
 
@@ -1433,19 +1535,45 @@ main {
    depende del panel.
    ========================================================= */
 
+/* El ancho del panel se declara como propiedad registrada para poder
+   animarlo. Sin registrarla, el navegador no sabe que es una longitud
+   y el cierre sería un salto seco. */
+/* El valor inicial va en píxeles a propósito: el registro exige una
+   longitud que no dependa del tipo de letra, y `rem` sí depende. Con
+   `rem` la regla entera se descarta y la animación desaparece. */
+@property --aside-w {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
 .with-aside {
+  /* Ancho del panel abierto. El interior del panel usa siempre este
+     valor, aunque la columna se esté cerrando. */
+  --aside-full: 17rem;
+  /* El mismo valor, escrito a mano: una variable que apunta a otra no se
+     puede interpolar, y el cierre dejaría de ser un movimiento. */
+  --aside-w: 17rem;
   display: grid;
-  /* Columnas laterales iguales (1fr), centro con el ancho de siempre. */
-  grid-template-columns: minmax(1.5rem, 1fr) min(100%, var(--page)) minmax(1.5rem, 1fr);
-  grid-template-areas: 'panel main .';
+  grid-template-columns: var(--aside-w) minmax(0, 1fr);
+  grid-template-areas: 'panel main';
   align-items: start;
+  transition: --aside-w 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Recogido: la columna mide cero y el contenido ocupa todo el ancho.
+   Las secciones sin índice (tutoriales) arrancan así de fábrica: no hay
+   panel que mostrar, luego no hay columna que reservar. */
+.with-aside.aside-hidden,
+.with-aside.no-aside {
+  --aside-w: 0rem;
 }
 
 .with-aside-main {
   grid-area: main;
   min-width: 0;
-  /* Misma columna de lectura que el resto del sitio, centrada dentro
-     de la pista: un resumen y el índice de su sección miden igual. */
+  /* Misma columna de lectura que el resto del sitio, centrada en el
+     espacio que queda libre. */
   width: 100%;
   max-width: calc(var(--column) + 3rem);
   margin-inline: auto;
@@ -1454,27 +1582,42 @@ main {
 
 .with-aside > .side-panel {
   grid-area: panel;
-  /* Pegado al borde de la columna de texto, no al de la pantalla. */
-  /* Ocupa el margen entero: su ancho es el que sobre a los lados de la
-     columna de texto, ni más ni menos. */
-  width: 100%;
-  padding-inline: 1.5rem 2rem;
+  min-width: 0;
+  /* El filete vertical es la frontera entre el índice y la lectura. */
+  border-right: 1px solid var(--border);
   position: sticky;
-  top: 1.5rem;
+  top: 5.5rem;
+  /* El filete llega hasta abajo aunque el índice sea corto: es el
+     borde de una columna, no el subrayado de una lista. */
+  min-height: calc(100svh - 8rem);
 }
 
-/* Plegado: desaparece la lista, el título se queda. */
-.with-aside.aside-hidden .side-groups,
-.with-aside.aside-hidden .side-empty {
-  display: none;
+/* La ventana que recorta: al estrecharse la columna, el índice se va
+   por el lado izquierdo en vez de apretujarse. */
+.side-panel-clip {
+  overflow: hidden;
+  width: 100%;
 }
 
-/* Plegado, el panel es solo su título: sin lista no hace falta el
-   filete que lo separaba del contenido. */
+.side-panel-inner {
+  width: var(--aside-full);
+  padding-inline: 1.5rem 2rem;
+  transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .with-aside.aside-hidden > .side-panel {
-  border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: 1.5rem;
+  border-right-color: transparent;
+}
+
+/* Al recogerse, el índice se va por el lado: acompaña al movimiento de
+   la columna en vez de desvanecerse en el sitio. */
+.with-aside.aside-hidden .side-panel-inner {
+  opacity: 0;
+  transform: translateX(-2rem);
+}
+
+.with-aside.aside-hidden > .side-panel {
+  min-height: 0;
 }
 
 /* --- El panel, sin caja: solo la jerarquía --- */
@@ -1505,11 +1648,61 @@ main {
   margin-top: 1.35rem;
 }
 
+/* El título de cada rama es también su interruptor: pulsarlo recoge lo
+   que cuelga de él. La flecha, pequeña y tenue, solo lo insinúa. */
 .side-group-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
   margin: 0 0 0.55rem;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
   font-size: 0.92rem;
   font-weight: var(--weight-strong);
   letter-spacing: -0.02em;
+}
+
+.side-group-name svg {
+  width: 0.78rem;
+  height: 0.78rem;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0.45;
+  transition: opacity 0.15s ease, transform 0.25s ease;
+}
+
+.side-group-name:hover svg,
+.side-group-name:focus-visible svg {
+  opacity: 1;
+}
+
+/* Recogida, la flecha apunta abajo: hacia donde vuelve la lista. */
+.side-group.is-collapsed .side-group-name svg {
+  transform: rotate(180deg);
+}
+
+/* De 1fr a 0fr: el alto se va solo, sin tener que medirlo desde
+   JavaScript ni fijar un máximo a ojo. */
+.side-group-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.side-group-body > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.side-group.is-collapsed .side-group-body {
+  grid-template-rows: 0fr;
 }
 
 /* La línea vertical es la que hace visible la jerarquía: todo lo que
@@ -1576,52 +1769,65 @@ main {
   opacity: 0.55;
 }
 
-/* --- El botón que oculta y muestra el panel --- */
+/* --- El tirador que recoge el panel --- */
 
+/* Va montado sobre el filete y viaja con él: abierto queda en la
+   frontera, y al cerrarse acompaña al panel hasta el borde izquierdo.
+   Como `.with-aside` ocupa el ancho de la ventana, la posición fija
+   coincide con la de la rejilla; así el tirador sigue a la vista
+   aunque se baje por la página. */
 .aside-toggle {
+  position: fixed;
+  top: 5.45rem;
+  /* Cerrado no se pega al borde de la pantalla: se queda a un dedo de
+     distancia, donde se ve que es un tirador y no un resto. */
+  left: max(1.4rem, calc(var(--aside-w) - 0.9rem));
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
+  /* Botón redondo, blanco y con una sombra corta: un tirador que se
+     apoya sobre la página, no un recuadro dibujado en ella. */
+  width: 2rem;
+  height: 2rem;
   flex-shrink: 0;
   padding: 0;
-  background: none;
-  border: none;
-  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 999px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.14);
   color: var(--text-muted);
-  opacity: 0.55;
   cursor: pointer;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .aside-toggle:hover,
 .aside-toggle:focus-visible {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.2);
+  transform: scale(1.06);
 }
 
 .aside-toggle svg {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 1rem;
+  height: 1rem;
   display: block;
-  /* Apunta hacia arriba mientras la lista está desplegada: hacia donde
-     se recoge al pulsarlo. Plegada, gira y apunta abajo, que es de
-     donde la trae de vuelta. */
-  transition: transform 0.22s ease;
+  /* Apunta hacia la izquierda mientras el panel está abierto: hacia
+     donde se va al pulsarlo. Cerrado, gira y apunta a la derecha, que
+     es de donde lo trae de vuelta. */
+  transition: transform 0.28s ease;
 }
 
 .aside-toggle[aria-expanded='false'] svg {
   transform: rotate(180deg);
 }
 
-/* Por debajo de este ancho el margen que sobra es demasiado estrecho
-   para leer nada, así que el panel se pone encima del contenido, a lo
-   ancho de la columna y con las ramas en fila. */
-@media (max-width: 100rem) {
+/* Por debajo de este ancho no caben dos columnas sin estrangular la
+   lectura, así que el índice se pone encima del contenido, con las
+   ramas en fila, y el tirador vuelve a la corriente del documento. */
+@media (max-width: 64rem) {
   .with-aside {
-    /* Una sola columna, pero con el mismo ancho de lectura de siempre
-       y centrada: el contenido no se estira de lado a lado. */
+    /* Una sola columna, con el ancho de lectura de siempre y centrada:
+       el contenido no se estira de lado a lado. */
     grid-template-columns: min(100%, var(--page));
     justify-content: center;
     grid-template-areas:
@@ -1632,17 +1838,82 @@ main {
   .with-aside > .side-panel {
     justify-self: stretch;
     width: auto;
-    position: static;
+    /* Referencia para el tirador, que aquí se ancla arriba a la derecha. */
+    position: relative;
+    top: auto;
     padding-inline: 1.5rem;
     padding-bottom: 1.75rem;
     margin-bottom: 1.75rem;
+    border-right: none;
     border-bottom: 1px solid var(--border);
+  }
+
+  .side-panel-clip {
+    overflow: visible;
+  }
+
+  .side-panel-inner,
+  .with-aside.aside-hidden .side-panel-inner {
+    width: auto;
+    padding-inline: 0;
+    opacity: 1;
+    transform: none;
+  }
+
+  .with-aside > .side-panel,
+  .with-aside.aside-hidden > .side-panel {
+    min-height: 0;
+  }
+
+  /* Apilado, plegar es una cuestión de alto: desaparece la lista y el
+     título se queda. */
+  .with-aside.aside-hidden .side-groups,
+  .with-aside.aside-hidden .side-empty {
+    display: none;
+  }
+
+  .with-aside.aside-hidden > .side-panel {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .aside-toggle {
+    position: absolute;
+    top: 0;
+    right: 1.5rem;
+    left: auto;
+  }
+
+  /* Sitio reservado para el tirador: el título nunca pasa por debajo. */
+  .side-head {
+    padding-right: 2.5rem;
+  }
+
+  /* Aquí el movimiento es vertical, y la flecha lo dice: apunta arriba
+     mientras la lista está desplegada, que es hacia donde se recoge. */
+  .aside-toggle svg {
+    transform: rotate(90deg);
+  }
+
+  .aside-toggle[aria-expanded='false'] svg {
+    transform: rotate(-90deg);
   }
 
   .side-groups {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem 3.5rem;
+    /* El hueco entre columnas es el justo para que dos ramas quepan a
+       lo ancho de un teléfono: con más, cada una se va a su línea. */
+    gap: 1.35rem 2rem;
+  }
+
+  /* Apilado, las ramas van en fila y cada una mide lo que ocupa su
+     nombre: la flecha se pega al título en vez de irse al borde. */
+  .side-group-name {
+    width: auto;
+    justify-content: flex-start;
+    gap: 0.4rem;
   }
 
   .side-group + .side-group {
