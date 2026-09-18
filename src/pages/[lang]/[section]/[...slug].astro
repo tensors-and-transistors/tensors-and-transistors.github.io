@@ -61,6 +61,7 @@ const sectionTitle = t(lang, `section.${section}.title` as 'section.blog.title')
   description={entry.data.description}
   altPath={altPath}
   hasTranslation={hasTranslation}
+  math
 >
   <div class:list={['with-aside', { 'no-aside': !showAside }]}>
     {showAside && <SideNav lang={lang} section={section} current={Astro.url.pathname} />}

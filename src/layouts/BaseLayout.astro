@@ -14,9 +14,19 @@ interface Props {
   hasTranslation?: boolean;
   /** La portada: su hero ya lleva el logo, así que la cabecera oculta el suyo. */
   home?: boolean;
+  /** Solo los artículos llevan fórmulas; solo ellos cargan KaTeX. */
+  math?: boolean;
 }
 
-const { lang, title, description, altPath, hasTranslation = true, home = false } = Astro.props;
+const {
+  lang,
+  title,
+  description,
+  altPath,
+  hasTranslation = true,
+  home = false,
+  math = false,
+} = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} — ${SITE_NAME}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -47,9 +57,27 @@ const altUrl = new URL(resolvedAlt, Astro.site);
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#000000" />
 
-    <!-- KaTeX: hoja de estilos y fuentes alojadas en el propio sitio.
-         Las fuentes solo se descargan en páginas que llevan fórmulas. -->
-    <link rel="stylesheet" href="/katex/katex.min.css" />
+    <!-- La tipografía del texto y la del titular se piden ya, sin esperar
+         a que el navegador descubra en el CSS que hacen falta. Es lo que
+         quita el parpadeo de letra al abrir. -->
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/source-serif-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- KaTeX: 24 KB de CSS que bloquean el pintado. Solo se cargan en las
+         páginas que llevan fórmulas; la portada y los índices no las tienen. -->
+    {math && <link rel="stylesheet" href="/katex/katex.min.css" />}
     <meta name="generator" content={Astro.generator} />
 
     <!-- Open Graph: cómo se ve al compartir el enlace -->

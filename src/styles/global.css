@@ -766,6 +766,9 @@ main {
   position: absolute;
   inset: 0;
   z-index: 1;
+  /* Una imagen, no miles de etiquetas: se dibuja una vez y se cachea.
+     Se genera con `node scripts/mosaic.mjs`. */
+  background: url('/mosaic.svg') center / cover no-repeat;
   mask-image: radial-gradient(
     77% 75% at 50% 50%,
     transparent 0%,
@@ -825,13 +828,13 @@ main {
   /* Entra solo, una vez: desenfocado y pequeño, y se asienta. El
      desenfoque es lo que hace visible la aparición; solo con opacidad
      apenas se notaba. */
-  animation: hero-logo-in 1.4s cubic-bezier(0.16, 0.8, 0.28, 1) both;
+  animation: hero-logo-in 0.85s cubic-bezier(0.16, 0.8, 0.28, 1) both;
 }
 
 @keyframes hero-logo-in {
   from {
     opacity: 0;
-    filter: blur(14px);
+    filter: blur(10px);
     transform: translateY(-1.6rem) scale(0.9);
   }
   60% {
@@ -884,7 +887,9 @@ main {
   padding: 0;
   overflow: hidden;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.07);
+  /* Translúcida: el degradado se ve por debajo, pero el velo oscuro
+     basta para que el texto no compita con el color. */
+  background: rgba(8, 14, 20, 0.35);
   color: #ffffff;
   text-align: left;
   text-decoration: none;
@@ -894,7 +899,7 @@ main {
 .hero-cta a:hover,
 .hero-cta a:focus-visible {
   transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(8, 14, 20, 0.52);
 }
 
 /* La ilustración no es una imagen ni un SVG: son capas de degradados.
@@ -902,35 +907,41 @@ main {
    rejilla fina de líneas oscuras que parte ese color en celdas de 4px.
    El resultado es el mismo efecto de una pantalla de puntos, sin un
    solo byte de descarga ni miles de rectángulos en el HTML. */
+/* A sangre: la ilustración llega a los tres bordes de la tarjeta. Es una
+   imagen, generada con `node scripts/art.mjs`, no cientos de etiquetas
+   dentro de la página. */
 .hero-card-art {
   display: block;
   aspect-ratio: 3 / 1;
-  /* A sangre: la ilustración llega a los tres bordes de la tarjeta. */
   margin: 0;
-  line-height: 0;
+  background: center / 100% 100% no-repeat;
 }
 
-.hero-card-art svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.hero-card-art.art-blog {
+  background-image: url('/card-blog.svg');
+}
+
+.hero-card-art.art-papers {
+  background-image: url('/card-papers.svg');
 }
 
 .hero-cta-label {
   display: block;
-  padding: 0.85rem 0.9rem 0;
+  padding: 0.8rem 0.95rem 0;
   text-align: center;
   font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: -0.015em;
 }
 
+/* Pegada al título: las dos líneas son una sola unidad. */
 .hero-cta-desc {
   display: block;
-  margin-top: 0.2rem;
-  padding: 0 0.9rem 0.95rem;
+  margin-top: 0.1rem;
+  padding: 0 0.95rem 0.95rem;
+  text-align: center;
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: var(--weight-nav);
   line-height: 1.35;
 }
@@ -964,8 +975,8 @@ main {
   z-index: 3;
   background: transparent;
   border-top: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.76rem;
   letter-spacing: -0.01em;
 }
 
@@ -1489,7 +1500,7 @@ main {
 
   ::view-transition-old(tnt-brand),
   ::view-transition-new(tnt-brand) {
-    animation-duration: 0.5s;
+    animation-duration: 0.36s;
     animation-timing-function: ease;
   }
 
@@ -1498,7 +1509,7 @@ main {
      para que llegue con un asentamiento mínimo en lugar de un tope seco.
      Es lo que hace que se lea como líquido y no como un salto. */
   ::view-transition-group(tnt-lang-pill) {
-    animation-duration: 0.55s;
+    animation-duration: 0.42s;
     animation-timing-function: cubic-bezier(0.32, 1.06, 0.28, 1);
   }
 
@@ -1587,9 +1598,13 @@ main {
   border-right: 1px solid var(--border);
   position: sticky;
   top: 5.5rem;
-  /* El filete llega hasta abajo aunque el índice sea corto: es el
-     borde de una columna, no el subrayado de una lista. */
-  min-height: calc(100svh - 8rem);
+  /* El filete recorre la columna entera: sube hasta el borde de la
+     cabecera —de ahí el margen negativo, que compensa el relleno
+     superior de `main`— y baja aunque el índice sea corto. Es el borde
+     de una columna, no el subrayado de una lista. */
+  margin-top: -2rem;
+  padding-top: 2rem;
+  min-height: calc(100svh - 5.5rem);
 }
 
 /* La ventana que recorta: al estrecharse la columna, el índice se va
@@ -1622,21 +1637,6 @@ main {
 
 /* --- El panel, sin caja: solo la jerarquía --- */
 
-.side-head {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-}
-
-.side-title {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: var(--weight-nav);
-  letter-spacing: -0.01em;
-  color: var(--text-muted);
-}
-
 .side-groups,
 .side-items {
   list-style: none;
@@ -1648,25 +1648,39 @@ main {
   margin-top: 1.35rem;
 }
 
-/* El título de cada rama es también su interruptor: pulsarlo recoge lo
-   que cuelga de él. La flecha, pequeña y tenue, solo lo insinúa. */
+/* El nombre de cada rama es el primer nivel del panel y también su
+   interruptor: pulsarlo recoge lo que cuelga de él. La barra de color a
+   la izquierda lo separa de la lista; la flecha, pequeña y tenue, solo
+   insinúa que se pliega. */
 .side-group-name {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   width: 100%;
-  margin: 0 0 0.55rem;
-  padding: 0;
+  margin: 0 0 0.6rem;
+  padding: 0 0 0 0.7rem;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  color: inherit;
+  color: var(--text);
   font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: var(--weight-strong);
+  font-size: 0.95rem;
+  font-weight: var(--weight-h1);
   letter-spacing: -0.02em;
+}
+
+.side-group-name::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #22d3ee 0%, #2fe0a8 100%);
 }
 
 .side-group-name svg {
@@ -1708,6 +1722,7 @@ main {
 /* La línea vertical es la que hace visible la jerarquía: todo lo que
    cuelga de ella pertenece a la rama de arriba. */
 .side-items {
+  margin-left: 0.7rem;
   padding-left: 0.85rem;
   border-left: 1px solid var(--border);
 }
@@ -1778,33 +1793,35 @@ main {
    aunque se baje por la página. */
 .aside-toggle {
   position: fixed;
-  top: 5.45rem;
+  /* Alturas y anchos en píxeles enteros: en media posición el borde
+     del círculo se dibuja borroso. */
+  top: 5.5rem;
   /* Cerrado no se pega al borde de la pantalla: se queda a un dedo de
      distancia, donde se ve que es un tirador y no un resto. */
-  left: max(1.4rem, calc(var(--aside-w) - 0.9rem));
+  left: max(1.4rem, calc(var(--aside-w) - 1rem));
   z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Botón redondo, blanco y con una sombra corta: un tirador que se
-     apoya sobre la página, no un recuadro dibujado en ella. */
+  /* Botón redondo y blanco, sin sombra: corta el filete sin flotar por
+     encima de la página. El gris lo mantiene callado hasta que alguien
+     lo busca; entonces se oscurece. */
   width: 2rem;
   height: 2rem;
   flex-shrink: 0;
   padding: 0;
   background: var(--bg);
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.14);
-  color: var(--text-muted);
+  color: #9aa3ad;
   cursor: pointer;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .aside-toggle:hover,
 .aside-toggle:focus-visible {
-  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.2);
-  transform: scale(1.06);
+  color: var(--text);
+  border-color: rgba(0, 0, 0, 0.25);
 }
 
 .aside-toggle svg {
@@ -1885,9 +1902,10 @@ main {
     left: auto;
   }
 
-  /* Sitio reservado para el tirador: el título nunca pasa por debajo. */
-  .side-head {
-    padding-right: 2.5rem;
+  /* Sitio para el tirador, que aquí se ancla arriba a la derecha: las
+     ramas empiezan por debajo de él. */
+  .side-panel-inner {
+    padding-top: 1.9rem;
   }
 
   /* Aquí el movimiento es vertical, y la flecha lo dice: apunta arriba

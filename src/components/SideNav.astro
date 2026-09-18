@@ -30,10 +30,6 @@ const groups =
         items: entries.filter((e) => e.data.category === cat),
       }))
     : [{ label: t(lang, `aside.${section}` as 'aside.blog'), items: entries }];
-
-// El encabezado del panel solo aparece cuando hay varias ramas debajo;
-// con una sola, repetiría el mismo texto dos veces seguidas.
-const showHead = groups.length > 1;
 ---
 
 <aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
@@ -43,14 +39,6 @@ const showHead = groups.length > 1;
 
   <div class="side-panel-clip">
     <div class="side-panel-inner">
-      {
-        showHead && (
-          <div class="side-head">
-            <p class="side-title">{t(lang, `aside.${section}` as 'aside.blog')}</p>
-          </div>
-        )
-      }
-
       <ul class="side-groups" id="side-panel-list">
         {
           groups.map((group, i) => (

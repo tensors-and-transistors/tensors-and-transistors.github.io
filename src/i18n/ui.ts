@@ -39,8 +39,8 @@ export const ui = {
     'nav.home': 'Home',
     'nav.menu': 'Abrir el menú',
 
-    'aside.blog': 'Contenidos',
-    'aside.papers': 'Otras explicaciones',
+    'aside.blog': 'Sigue aprendiendo',
+    'aside.papers': 'Lee también',
     'aside.empty': 'Pronto.',
     'aside.index': 'Índice',
     'cat.foundations': 'Fundamentos',
@@ -75,8 +75,8 @@ export const ui = {
     /* El titular lleva marcado porque dos palabras van en negrita.
        Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
     'hero.title': 'donde la <b>matemática</b><br>y el <b>metal</b> convergen',
-    'hero.blogDesc': 'Ideas desde cero, con los rodeos<br>que hacen que se entiendan.',
-    'hero.papersDesc': 'Rigor técnico, fácil de digerir.',
+    'hero.blogDesc': 'Contenido técnico para que lo entienda cualquier persona en el mundo.',
+    'hero.papersDesc': 'La rigurosidad de los papers técnicos en un formato fácil de digerir.',
 
   },
   en: {
@@ -90,8 +90,8 @@ export const ui = {
     'nav.home': 'Home',
     'nav.menu': 'Open the menu',
 
-    'aside.blog': 'Contents',
-    'aside.papers': 'Other explanations',
+    'aside.blog': 'Keep learning',
+    'aside.papers': 'Read next',
     'aside.empty': 'Soon.',
     'aside.index': 'Index',
     'cat.foundations': 'Fundamentos',
@@ -126,8 +126,8 @@ export const ui = {
     /* El titular lleva marcado porque dos palabras van en negrita.
        Se inserta con `set:html`; el resto del sitio no usa HTML en i18n. */
     'hero.title': 'where <b>math</b><br>meets <b>metal</b>',
-    'hero.blogDesc': 'Ideas from scratch, with the detours<br>that make them stick.',
-    'hero.papersDesc': 'Technical rigor, made easy-to-digest.',
+    'hero.blogDesc': 'Technical content anyone in the world can understand.',
+    'hero.papersDesc': 'The rigor of technical papers in a format that goes down easy.',
 
   },
 } as const;

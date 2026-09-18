@@ -8,140 +8,6 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 
-/**
- * Mosaico del hero: cuadrados y dígitos binarios.
- *
- * Se genera aquí, durante el build, y viaja como SVG dentro del HTML.
- * No hay imagen que descargar ni JavaScript que ejecutar en el navegador,
- * y al escalar no se pixela.
- *
- * El generador aleatorio es propio y con semilla fija: así el dibujo es
- * EXACTAMENTE el mismo en cada build. Con `Math.random()` cambiaría en
- * cada despliegue y el sitio parecería inestable.
- */
-function mosaic(width: number, height: number, cell: number, seed: number): string {
-  let state = seed >>> 0;
-  const rand = () => ((state = (state * 1664525 + 1013904223) >>> 0) / 4294967296);
-
-  const cols = Math.ceil(width / cell);
-  const rows = Math.ceil(height / cell);
-  const side = cell - Math.max(2, cell * 0.2);
-  const parts: string[] = [];
-
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      const v = rand();
-      const px = x * cell;
-      const py = y * cell;
-      const o = (base: number, range: number) => (base + rand() * range).toFixed(2);
-
-      if (v > 0.94) {
-        parts.push(
-          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="#5eead4" opacity="${o(0.12, 0.26)}"/>`
-        );
-      } else if (v > 0.88) {
-        parts.push(
-          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="#7dd3fc" opacity="${o(0.1, 0.22)}"/>`
-        );
-      } else if (v > 0.8) {
-        parts.push(
-          `<rect x="${px}" y="${py}" width="${side}" height="${side}" fill="none" stroke="#a5f3fc" stroke-width=".8" opacity="${o(0.14, 0.26)}"/>`
-        );
-      } else if (v > 0.28) {
-        parts.push(
-          `<text x="${px + side / 2}" y="${py + side / 2 + 3.2}" text-anchor="middle" font-size="${(cell * 0.5).toFixed(1)}" fill="#a5f3fc" opacity="${o(0.12, 0.32)}">${rand() > 0.5 ? 1 : 0}</text>`
-        );
-      }
-    }
-  }
-
-  return parts.join('');
-}
-
-const MOSAIC = mosaic(1440, 620, 15, 91);
-
-/**
- * Ilustración de las tarjetas: un campo de color cuantizado en píxeles.
- *
- * No hay rejilla ni líneas. Lo que separa un píxel del vecino es el
- * salto de tono: el color varía de forma continua, pero solo se permiten
- * ocho tonos de la paleta, así que el degradado se rompe en escalones y
- * cada celda se ve como una celda.
- *
- * El campo sale de una suma de senos con fase fija: siempre el mismo
- * dibujo en cada build, sin imagen que descargar.
- *
- * Los tramos horizontales del mismo tono se emiten como un solo
- * rectángulo. En un campo suave la mayoría de las filas son pocas
- * tiradas largas, y el SVG baja de miles de etiquetas a unos cientos.
- */
-const TONES = [
-  '#0b2545',
-  '#0d2e52',
-  '#0f375e',
-  '#10426b',
-  '#0f4e77',
-  '#0d5a81',
-  '#0b6a8b',
-  '#0a7a93',
-  '#0c8a99',
-  '#0f9a9c',
-  '#13a89f',
-  '#17b59c',
-  '#22cba4',
-  '#2fe0a8',
-  '#48e9c3',
-  '#5eead4',
-];
-
-function pixelField(cols: number, rows: number, phase: number): string {
-  const parts: string[] = [];
-
-  for (let y = 0; y < rows; y++) {
-    let start = 0;
-    let tone = -1;
-
-    for (let x = 0; x <= cols; x++) {
-      let next = -1;
-
-      if (x < cols) {
-        const u = x / (cols - 1);
-        const v = y / (rows - 1);
-
-        const f =
-          0.5 +
-          0.3 * Math.sin(5.6 * u + 2.3 * v + phase) +
-          0.22 * Math.sin(2.4 * u - 4.6 * v + phase * 1.7) +
-          0.15 * Math.sin(8.4 * (u + 0.35 * v) + phase * 0.6);
-
-        // Se inclina hacia la diagonal del sitio: oscuro a un lado,
-        // aguamarina al otro.
-        const p = Math.min(1, Math.max(0, 0.58 * f + 0.42 * (0.18 + 0.72 * u)));
-        // Un empujón suave hacia la parte honda de la rampa: el azul
-        // profundo domina y el aguamarina resalta sobre él. Sin negros:
-        // el tono más bajo sigue siendo azul.
-        next = Math.round(Math.pow(p, 1.25) * (TONES.length - 1));
-      }
-
-      if (next !== tone) {
-        if (tone >= 0) {
-          parts.push(
-            `<rect x="${start}" y="${y}" width="${x - start}" height="1" fill="${TONES[tone]}"/>`
-          );
-        }
-        tone = next;
-        start = x;
-      }
-    }
-  }
-
-  return parts.join('');
-}
-
-const ART_COLS = 104;
-const ART_ROWS = 35;
-const ART_BLOG = pixelField(ART_COLS, ART_ROWS, 0.4);
-const ART_PAPERS = pixelField(ART_COLS, ART_ROWS, 3.9);
 ---
 
 <BaseLayout lang={lang} title={SITE_NAME} description={t(lang, 'site.intro')} home>
@@ -149,11 +15,10 @@ const ART_PAPERS = pixelField(ART_COLS, ART_ROWS, 3.9);
     <!-- Dos capas de fondo: el degradado y el mosaico. Las dos decorativas,
          así que se ocultan a los lectores de pantalla. -->
     <div class="hero-bg" aria-hidden="true"></div>
-    <div class="hero-mosaic" aria-hidden="true">
-      <svg viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" role="presentation">
-        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" set:html={MOSAIC} />
-      </svg>
-    </div>
+    <!-- El mosaico es una imagen, no 4.000 etiquetas dentro de la página:
+         el navegador la dibuja una vez y la guarda en su caché.
+         Se genera con `node scripts/mosaic.mjs`. -->
+    <div class="hero-mosaic" aria-hidden="true"></div>
 
     <div class="hero-inner">
       <img
@@ -168,28 +33,12 @@ const ART_PAPERS = pixelField(ART_COLS, ART_ROWS, 3.9);
 
       <div class="hero-cta">
         <a href={`/${lang}/blog/`}>
-          <span class="hero-card-art" aria-hidden="true">
-            <svg
-              viewBox={`0 0 ${ART_COLS} ${ART_ROWS}`}
-              preserveAspectRatio="none"
-              shape-rendering="crispEdges"
-              role="presentation"
-              set:html={ART_BLOG}
-            />
-          </span>
+<span class="hero-card-art art-blog" aria-hidden="true"></span>
           <span class="hero-cta-label">{t(lang, 'nav.blog')}</span>
           <span class="hero-cta-desc" set:html={t(lang, 'hero.blogDesc')} />
         </a>
         <a href={`/${lang}/papers/`}>
-          <span class="hero-card-art" aria-hidden="true">
-            <svg
-              viewBox={`0 0 ${ART_COLS} ${ART_ROWS}`}
-              preserveAspectRatio="none"
-              shape-rendering="crispEdges"
-              role="presentation"
-              set:html={ART_PAPERS}
-            />
-          </span>
+<span class="hero-card-art art-papers" aria-hidden="true"></span>
           <span class="hero-cta-label">{t(lang, 'nav.papers')}</span>
           <span class="hero-cta-desc" set:html={t(lang, 'hero.papersDesc')} />
         </a>
