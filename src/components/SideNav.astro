@@ -43,6 +43,10 @@ const groups =
 <aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
   <div class="side-panel-clip">
     <div class="side-panel-inner">
+      <!-- El mismo rótulo que lleva la pastilla: quien abre el cajón ve
+           dentro lo que acaba de pulsar fuera. -->
+      <p class="side-title">{t(lang, `aside.${section}` as 'aside.blog')}</p>
+
       <ul class="side-groups" id="side-panel-list">
         {
           groups.map((group, i) => (

@@ -39,7 +39,7 @@ export const ui = {
     'nav.home': 'Home',
     'nav.menu': 'Abrir el menú',
 
-    'aside.blog': 'Sigue aprendiendo',
+    'aside.blog': '¡Sigue aprendiendo!',
     'aside.papers': 'Lee también',
     'aside.empty': 'Pronto.',
     'aside.index': 'Índice',
@@ -68,7 +68,7 @@ export const ui = {
     'lang.switchLabel': 'Ver esta página en inglés',
     'lang.noteLabel': 'Sobre los idiomas',
     'lang.note':
-      'Te recomendamos cambiar de idioma desde aquí: cada versión está curada en su propio idioma.',
+      'Te recomendamos cambiar el idioma aquí y no usar traducción automática. Hemos curado el contenido en su idioma original.',
 
     'home.explore': 'Explora',
 
@@ -90,11 +90,11 @@ export const ui = {
     'nav.home': 'Home',
     'nav.menu': 'Open the menu',
 
-    'aside.blog': 'Keep learning',
+    'aside.blog': 'Keep learning!',
     'aside.papers': 'Read next',
     'aside.empty': 'Soon.',
     'aside.index': 'Index',
-    'cat.foundations': 'Fundamentos',
+    'cat.foundations': 'Foundations',
     'cat.deep-learning': 'Deep Learning',
     'cat.hardware': 'Hardware',
 
@@ -119,7 +119,7 @@ export const ui = {
     'lang.switchLabel': 'View this page in Spanish',
     'lang.noteLabel': 'About languages',
     'lang.note':
-      'We recommend switching languages here: each version is curated in its own language.',
+      'We recommend switching languages here rather than using automatic translation. We have curated the content in its original language.',
 
     'home.explore': 'Explore',
 

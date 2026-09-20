@@ -1629,6 +1629,19 @@ main {
   padding-inline: 1.5rem 2.2rem;
 }
 
+/* El rótulo del cajón: lo primero que se lee al abrirlo, y el mismo
+   texto que trae la pastilla por fuera. Sin barra de color, que es la
+   marca de las ramas. */
+.side-title {
+  /* Justo el respiro necesario: el rótulo se lee como cabecera por su
+     tamaño y por no llevar barra de color, no por la distancia. */
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
 /* --- El panel, sin caja: solo la jerarquía --- */
 
 .side-groups,
@@ -1872,8 +1885,12 @@ main {
 }
 
 .aside-toggle svg {
-  width: 1rem;
-  height: 1rem;
+  /* Un punto más grande que el icono base: dentro del círculo, a 1rem
+     se veía pequeña y descentrada aunque la medición dijera lo
+     contrario. 1.125rem son 18px justos, y 18 en una caja de 30 deja
+     6px por lado: en píxeles enteros el dibujo no se emborrona. */
+  width: 1.125rem;
+  height: 1.125rem;
   display: block;
   /* Apunta hacia la izquierda mientras el panel está abierto: hacia
      donde se va al pulsarlo. Cerrado, gira y apunta a la derecha, que
