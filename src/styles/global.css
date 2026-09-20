@@ -1599,10 +1599,13 @@ main {
   z-index: 40;
   width: min(var(--aside-full), 82vw);
   height: 100svh;
-  /* Deja libre la franja de la cabecera. El valor va emparejado con la
-     posición del tirador: así el enlace de salida y el círculo quedan a
-     la misma altura cuando el cajón está abierto. */
-  padding-top: 5rem;
+  /* Deja pasar la cabecera y respira un poco por debajo de ella. El
+     valor está elegido para que el primer nombre de rama quede a la
+     misma altura que el centro del tirador. */
+  padding-top: 4.9rem;
+  /* La misma curva y duración que usa la cabecera para retirarse: los
+     dos movimientos se leen como uno solo. */
+  transition: padding-top 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   padding-bottom: 2rem;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1624,41 +1627,6 @@ main {
   /* El hueco de la derecha deja pasar el tirador sin tocar las flechas
      de plegado. */
   padding-inline: 1.5rem 2.2rem;
-}
-
-/* La salida al listado de la sección: no es una rama más, así que no
-   lleva barra de color ni plegado. Se separa con un filete. */
-.side-panel .side-back {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 1.3rem;
-  padding-bottom: 0.9rem;
-  /* En negro y con peso: es la salida hacia todo el catálogo de la
-     sección, el movimiento más grande que ofrece el cajón. En gris se
-     leía como un pie de página. */
-  color: var(--text);
-  border-bottom: 1px solid var(--rule);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: var(--weight-h1);
-  letter-spacing: -0.015em;
-  transition: color 0.15s ease;
-}
-
-.side-back svg {
-  width: 0.9rem;
-  height: 0.9rem;
-  flex-shrink: 0;
-  transition: transform 0.15s ease, color 0.15s ease;
-}
-
-.side-panel .side-back:hover {
-  color: var(--accent);
-}
-
-.side-back:hover svg {
-  transform: translateX(-3px);
 }
 
 /* --- El panel, sin caja: solo la jerarquía --- */
@@ -1859,7 +1827,8 @@ main {
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    top 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .aside-toggle-label {
@@ -1919,6 +1888,18 @@ main {
 /* Por debajo de este ancho no caben dos columnas sin estrangular la
    lectura, así que el índice se pone encima del contenido, con las
    ramas en fila, y el tirador vuelve a la corriente del documento. */
+/* Al bajar por la página la cabecera se retira, y con ella deja libre su
+   franja. El cajón la reclama: sin esto el índice quedaba flotando sobre
+   un hueco reservado para una barra que ya no está. Sube y baja con ella,
+   así que el movimiento se lee como uno solo. */
+body:has(.site-header.header-hidden) .with-aside > .side-panel {
+  padding-top: 1.5rem;
+}
+
+body:has(.site-header.header-hidden) .aside-toggle {
+  top: 1.2rem;
+}
+
 /* En pantallas pequeñas el cajón es más estrecho, pero se comporta
    igual: entra por el lado, encima del texto. */
 @media (max-width: 48rem) {
@@ -1933,7 +1914,7 @@ main {
   /* La cabecera del móvil es algo más alta, así que el tirador baja un
      punto para no pegarse a ella. */
   .with-aside > .side-panel {
-    padding-top: 5.05rem;
+    padding-top: 5.2rem;
   }
 
   .aside-toggle {

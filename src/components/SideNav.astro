@@ -29,8 +29,8 @@ const groups =
         label: t(lang, `cat.${cat}` as 'cat.hardware'),
         items: entries.filter((e) => e.data.category === cat),
       }))
-    // Una sección sin ramas es una lista y nada más: ponerle un nombre
-    // encima repetiría lo que ya dice el enlace de salida.
+    // Una sección sin ramas es una lista y nada más: un nombre encima
+    // solo repetiría el de la sección en la que ya estás.
     : [{ label: null as string | null, items: entries }];
 ---
 
@@ -43,22 +43,6 @@ const groups =
 <aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
   <div class="side-panel-clip">
     <div class="side-panel-inner">
-      <!-- La salida hacia el listado completo de la sección. Va arriba del
-           todo porque es el movimiento más grande que ofrece el cajón:
-           salir de este artículo y ver todo lo que hay. -->
-      <a class="side-back" href={`/${lang}/${section}/`}>
-        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-          <path
-            d="M13 8H3.5M7.5 4 3.5 8l4 4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-        {t(lang, `section.${section}.title` as 'section.blog.title')}
-      </a>
-
       <ul class="side-groups" id="side-panel-list">
         {
           groups.map((group, i) => (
