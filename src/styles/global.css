@@ -124,6 +124,9 @@
   /* Bordes */
   --border: #e2e8f0;
   --border-strong: #cbd5e1;
+  /* El gris del cajón del índice: filete, contorno del tirador, flecha y
+     enlace de salida. Uno solo para toda esa pieza. */
+  --rule: #94a3b8;
 
   /* Texto sobre blanco: todo negro, sin grises. */
   --text: #000000;
@@ -1539,19 +1542,20 @@ main {
 
 
 /* =========================================================
-   Layout con panel lateral
-   El contenido conserva su columna de lectura y queda centrado
-   en la pantalla; el panel se cuelga del margen sobrante, fuera
-   de esa columna. Ocultarlo no mueve el texto: el centro no
-   depende del panel.
+   Panel lateral — cajón que se superpone
+   El panel no ocupa una columna de la rejilla: es un cajón fijo
+   que entra desde el borde izquierdo POR ENCIMA del texto. Así,
+   abrirlo en mitad de un artículo no mueve ni una línea de lo
+   que se está leyendo.
+   Solo existe en los artículos, y siempre arranca cerrado: quien
+   llega viene a leer, no a elegir.
    ========================================================= */
 
-/* El ancho del panel se declara como propiedad registrada para poder
-   animarlo. Sin registrarla, el navegador no sabe que es una longitud
-   y el cierre sería un salto seco. */
-/* El valor inicial va en píxeles a propósito: el registro exige una
-   longitud que no dependa del tipo de letra, y `rem` sí depende. Con
-   `rem` la regla entera se descarta y la animación desaparece. */
+/* El desplazamiento se declara como propiedad registrada para poder
+   animarlo. Sin registrarla el navegador no sabe que es una longitud y
+   la apertura sería un salto seco. El valor inicial va en píxeles a
+   propósito: el registro exige una longitud que no dependa del tipo de
+   letra, y `rem` sí depende; con `rem` la regla entera se descarta. */
 @property --aside-w {
   syntax: '<length>';
   inherits: true;
@@ -1559,32 +1563,29 @@ main {
 }
 
 .with-aside {
-  /* Ancho del panel abierto. El interior del panel usa siempre este
-     valor, aunque la columna se esté cerrando. */
-  --aside-full: 17rem;
-  /* El mismo valor, escrito a mano: una variable que apunta a otra no se
-     puede interpolar, y el cierre dejaría de ser un movimiento. */
-  --aside-w: 17rem;
+  /* El ancho está atado a la maqueta: 15.5rem es lo que mide el margen
+     izquierdo cuando la columna de lectura está centrada en una pantalla
+     de portátil. Así el cajón llega justo hasta el texto y el tirador,
+     que cabalga su borde, nunca se monta encima de lo que se lee. */
+  --aside-full: 15.5rem;
+  /* 0 = cerrado. Es el estado de partida de toda página. */
+  --aside-w: 0rem;
   display: grid;
-  grid-template-columns: var(--aside-w) minmax(0, 1fr);
-  grid-template-areas: 'panel main';
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  transition: --aside-w 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: --aside-w 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Recogido: la columna mide cero y el contenido ocupa todo el ancho.
-   Las secciones sin índice (tutoriales) arrancan así de fábrica: no hay
-   panel que mostrar, luego no hay columna que reservar. */
-.with-aside.aside-hidden,
-.with-aside.no-aside {
-  --aside-w: 0rem;
+/* El mismo valor que `--aside-full`, escrito a mano: una variable que
+   apunta a otra no se puede interpolar y el cajón dejaría de deslizarse. */
+.with-aside.aside-open {
+  --aside-w: 15.5rem;
 }
 
 .with-aside-main {
-  grid-area: main;
   min-width: 0;
-  /* Misma columna de lectura que el resto del sitio, centrada en el
-     espacio que queda libre. */
+  /* La columna de lectura de siempre, centrada en la pantalla. No
+     depende del panel: por eso el texto no se mueve al abrirlo. */
   width: 100%;
   max-width: calc(var(--column) + 3rem);
   margin-inline: auto;
@@ -1592,47 +1593,72 @@ main {
 }
 
 .with-aside > .side-panel {
-  grid-area: panel;
-  min-width: 0;
-  /* El filete vertical es la frontera entre el índice y la lectura. */
-  border-right: 1px solid var(--border);
-  position: sticky;
-  top: 5.5rem;
-  /* El filete recorre la columna entera: sube hasta el borde de la
-     cabecera —de ahí el margen negativo, que compensa el relleno
-     superior de `main`— y baja aunque el índice sea corto. Es el borde
-     de una columna, no el subrayado de una lista. */
-  margin-top: -2rem;
-  padding-top: 2rem;
-  min-height: calc(100svh - 5.5rem);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  width: min(var(--aside-full), 82vw);
+  height: 100svh;
+  /* Deja libre la franja de la cabecera. El valor va emparejado con la
+     posición del tirador: así el enlace de salida y el círculo quedan a
+     la misma altura cuando el cajón está abierto. */
+  padding-top: 5rem;
+  padding-bottom: 2rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  /* Más oscuro que el resto de bordes del sitio: este filete no separa
+     dos párrafos, separa dos superficies. Es el MISMO gris que usa el
+     tirador, contorno y flecha incluidos: la línea y el botón son una
+     sola pieza y con dos grises distintos se notaba el remiendo. */
+  border-right: 1px solid var(--rule);
+  /* Cerrado queda justo fuera de la pantalla; abierto, a ras del borde. */
+  transform: translateX(calc(var(--aside-w) - min(var(--aside-full), 82vw)));
 }
 
-/* La ventana que recorta: al estrecharse la columna, el índice se va
-   por el lado izquierdo en vez de apretujarse. */
 .side-panel-clip {
-  overflow: hidden;
-  width: 100%;
+  overflow: visible;
 }
 
 .side-panel-inner {
-  width: var(--aside-full);
-  padding-inline: 1.5rem 2rem;
-  transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  /* El hueco de la derecha deja pasar el tirador sin tocar las flechas
+     de plegado. */
+  padding-inline: 1.5rem 2.2rem;
 }
 
-.with-aside.aside-hidden > .side-panel {
-  border-right-color: transparent;
+/* La salida al listado de la sección: no es una rama más, así que no
+   lleva barra de color ni plegado. Se separa con un filete. */
+.side-panel .side-back {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.3rem;
+  padding-bottom: 0.9rem;
+  /* En negro y con peso: es la salida hacia todo el catálogo de la
+     sección, el movimiento más grande que ofrece el cajón. En gris se
+     leía como un pie de página. */
+  color: var(--text);
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: var(--weight-h1);
+  letter-spacing: -0.015em;
+  transition: color 0.15s ease;
 }
 
-/* Al recogerse, el índice se va por el lado: acompaña al movimiento de
-   la columna en vez de desvanecerse en el sitio. */
-.with-aside.aside-hidden .side-panel-inner {
-  opacity: 0;
-  transform: translateX(-2rem);
+.side-back svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, color 0.15s ease;
 }
 
-.with-aside.aside-hidden > .side-panel {
-  min-height: 0;
+.side-panel .side-back:hover {
+  color: var(--accent);
+}
+
+.side-back:hover svg {
+  transform: translateX(-3px);
 }
 
 /* --- El panel, sin caja: solo la jerarquía --- */
@@ -1721,6 +1747,10 @@ main {
 
 /* La línea vertical es la que hace visible la jerarquía: todo lo que
    cuelga de ella pertenece a la rama de arriba. */
+.side-group-plain .side-items {
+  margin-left: 0;
+}
+
 .side-items {
   margin-left: 0.7rem;
   padding-left: 0.85rem;
@@ -1745,9 +1775,16 @@ main {
   color: var(--accent);
 }
 
-/* El artículo abierto se marca con el mismo degradado de las pestañas. */
+/* Dónde estoy: el artículo abierto va en el cian de la marca y con más
+   peso, además de la barra. Con el cajón abierto sobre el texto, esa
+   marca es lo que evita volver a entrar donde ya estás. */
 .side-items a[aria-current='page'] {
-  font-weight: var(--weight-strong);
+  color: var(--accent);
+  font-weight: var(--weight-h1);
+}
+
+.side-items a[aria-current='page']:hover {
+  color: var(--accent);
 }
 
 .side-items a[aria-current='page']::before {
@@ -1795,33 +1832,74 @@ main {
   position: fixed;
   /* Alturas y anchos en píxeles enteros: en media posición el borde
      del círculo se dibuja borroso. */
-  top: 5.5rem;
+  top: 4.5rem;
   /* Cerrado no se pega al borde de la pantalla: se queda a un dedo de
      distancia, donde se ve que es un tirador y no un resto. */
   left: max(1.4rem, calc(var(--aside-w) - 1rem));
-  z-index: 3;
+  /* Por encima del cajón (40) y por debajo de la cabecera (50). */
+  z-index: 41;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Botón redondo y blanco, sin sombra: corta el filete sin flotar por
-     encima de la página. El gris lo mantiene callado hasta que alguien
-     lo busca; entonces se oscurece. */
-  width: 2rem;
+  gap: 0.45rem;
+  /* Cerrado es una pastilla con su invitación escrita; abierto se
+     recoge en el círculo de siempre, porque ahí el rótulo ya lo dice
+     el propio índice. */
   height: 2rem;
+  padding: 0 0.7rem 0 0.9rem;
   flex-shrink: 0;
-  padding: 0;
   background: var(--bg);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--rule);
   border-radius: 999px;
-  color: #9aa3ad;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: var(--weight-nav);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.aside-toggle-label {
+  /* El rótulo no participa del giro del icono. */
+  display: block;
+}
+
+.aside-toggle svg {
+  color: var(--rule);
 }
 
 .aside-toggle:hover,
 .aside-toggle:focus-visible {
-  color: var(--text);
-  border-color: rgba(0, 0, 0, 0.25);
+  border-color: var(--text);
+  background: #f8fafc;
+}
+
+/* Abierto: solo el icono, en el mismo círculo de antes. */
+.aside-toggle[aria-expanded='true'] {
+  width: 2rem;
+  padding: 0;
+  gap: 0;
+}
+
+.aside-toggle[aria-expanded='true'] .aside-toggle-label {
+  display: none;
+}
+
+/* Si el margen no da para la pastilla, se queda el círculo: el rótulo
+   nunca debe montarse sobre el texto del artículo. */
+@media (max-width: 80rem) {
+  .aside-toggle {
+    width: 2rem;
+    padding: 0;
+    gap: 0;
+  }
+
+  .aside-toggle-label {
+    display: none;
+  }
 }
 
 .aside-toggle svg {
@@ -1841,101 +1919,25 @@ main {
 /* Por debajo de este ancho no caben dos columnas sin estrangular la
    lectura, así que el índice se pone encima del contenido, con las
    ramas en fila, y el tirador vuelve a la corriente del documento. */
-@media (max-width: 64rem) {
+/* En pantallas pequeñas el cajón es más estrecho, pero se comporta
+   igual: entra por el lado, encima del texto. */
+@media (max-width: 48rem) {
   .with-aside {
-    /* Una sola columna, con el ancho de lectura de siempre y centrada:
-       el contenido no se estira de lado a lado. */
-    grid-template-columns: min(100%, var(--page));
-    justify-content: center;
-    grid-template-areas:
-      'panel'
-      'main';
+    --aside-full: 14rem;
   }
 
+  .with-aside.aside-open {
+    --aside-w: 14rem;
+  }
+
+  /* La cabecera del móvil es algo más alta, así que el tirador baja un
+     punto para no pegarse a ella. */
   .with-aside > .side-panel {
-    justify-self: stretch;
-    width: auto;
-    /* Referencia para el tirador, que aquí se ancla arriba a la derecha. */
-    position: relative;
-    top: auto;
-    padding-inline: 1.5rem;
-    padding-bottom: 1.75rem;
-    margin-bottom: 1.75rem;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .side-panel-clip {
-    overflow: visible;
-  }
-
-  .side-panel-inner,
-  .with-aside.aside-hidden .side-panel-inner {
-    width: auto;
-    padding-inline: 0;
-    opacity: 1;
-    transform: none;
-  }
-
-  .with-aside > .side-panel,
-  .with-aside.aside-hidden > .side-panel {
-    min-height: 0;
-  }
-
-  /* Apilado, plegar es una cuestión de alto: desaparece la lista y el
-     título se queda. */
-  .with-aside.aside-hidden .side-groups,
-  .with-aside.aside-hidden .side-empty {
-    display: none;
-  }
-
-  .with-aside.aside-hidden > .side-panel {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 1.5rem;
+    padding-top: 5.05rem;
   }
 
   .aside-toggle {
-    position: absolute;
-    top: 0;
-    right: 1.5rem;
-    left: auto;
-  }
-
-  /* Sitio para el tirador, que aquí se ancla arriba a la derecha: las
-     ramas empiezan por debajo de él. */
-  .side-panel-inner {
-    padding-top: 1.9rem;
-  }
-
-  /* Aquí el movimiento es vertical, y la flecha lo dice: apunta arriba
-     mientras la lista está desplegada, que es hacia donde se recoge. */
-  .aside-toggle svg {
-    transform: rotate(90deg);
-  }
-
-  .aside-toggle[aria-expanded='false'] svg {
-    transform: rotate(-90deg);
-  }
-
-  .side-groups {
-    display: flex;
-    flex-wrap: wrap;
-    /* El hueco entre columnas es el justo para que dos ramas quepan a
-       lo ancho de un teléfono: con más, cada una se va a su línea. */
-    gap: 1.35rem 2rem;
-  }
-
-  /* Apilado, las ramas van en fila y cada una mide lo que ocupa su
-     nombre: la flecha se pega al título en vez de irse al borde. */
-  .side-group-name {
-    width: auto;
-    justify-content: flex-start;
-    gap: 0.4rem;
-  }
-
-  .side-group + .side-group {
-    margin-top: 0;
+    top: 4.6rem;
   }
 }
 

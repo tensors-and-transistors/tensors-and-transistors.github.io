@@ -1,21 +1,27 @@
 ---
-import { t, type Lang } from '../i18n/ui';
+import { t, type Lang, type Section } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
+  section: Section;
 }
 
-const { lang } = Astro.props;
+const { lang, section } = Astro.props;
+
+// El rótulo es el de la sección: "Sigue aprendiendo" en el blog,
+// "Lee también" en las explicaciones.
+const rotulo = t(lang, `aside.${section}` as 'aside.blog');
 ---
 
 <button
   type="button"
   class="aside-toggle"
-  aria-expanded="true"
+  aria-expanded="false"
   aria-controls="side-panel"
-  aria-label={t(lang, 'aside.index')}
-  title={t(lang, 'aside.index')}
+  aria-label={rotulo}
+  title={rotulo}
 >
+  <span class="aside-toggle-label">{rotulo}</span>
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
     <path
       d="M9.9 3.75 5.65 8l4.25 4.25"
@@ -28,20 +34,28 @@ const { lang } = Astro.props;
 </button>
 
 <script is:inline>
-  // Mostrar u ocultar el panel lateral.
+  // Abrir y cerrar el cajón del índice.
   //
-  // La decisión NO se guarda: cada página se abre con el índice a la
-  // vista. Es lo primero que hay que ver al entrar en una sección, y
-  // recordar que alguien lo cerró una vez deja el sitio sin su mapa.
+  // El estado NO se guarda: cada artículo abre cerrado. Quien llega a un
+  // artículo viene a leerlo, no a elegir otro; el índice espera detrás
+  // del tirador hasta que hace falta.
   (function () {
     var root = document.querySelector('.with-aside');
     var button = document.querySelector('.aside-toggle');
     if (!root || !button) return;
 
+    function abrir(si) {
+      root.classList.toggle('aside-open', si);
+      button.setAttribute('aria-expanded', si ? 'true' : 'false');
+    }
+
     button.addEventListener('click', function () {
-      var hidden = !root.classList.contains('aside-hidden');
-      root.classList.toggle('aside-hidden', hidden);
-      button.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+      abrir(!root.classList.contains('aside-open'));
+    });
+
+    // Escape lo cierra, como cualquier cajón del sistema.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') abrir(false);
     });
   })();
 </script>

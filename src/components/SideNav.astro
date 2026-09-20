@@ -29,38 +29,60 @@ const groups =
         label: t(lang, `cat.${cat}` as 'cat.hardware'),
         items: entries.filter((e) => e.data.category === cat),
       }))
-    : [{ label: t(lang, `aside.${section}` as 'aside.blog'), items: entries }];
+    // Una sección sin ramas es una lista y nada más: ponerle un nombre
+    // encima repetiría lo que ya dice el enlace de salida.
+    : [{ label: null as string | null, items: entries }];
 ---
 
-<aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
-  <!-- Fuera del recorte: el tirador debe seguir a la vista con el
-       panel cerrado, que es justo cuando hace falta. -->
-  <AsideToggle lang={lang} />
+<!-- El tirador va FUERA del cajón, no dentro: el cajón se desplaza con
+     `transform`, y un elemento transformado se convierte en el marco de
+     referencia de todo lo que lleva dentro en posición fija. Dentro, el
+     tirador se iría de la pantalla junto con el cajón cerrado. -->
+<AsideToggle lang={lang} section={section} />
 
+<aside class="side-panel" id="side-panel" aria-label={t(lang, `aside.${section}` as 'aside.blog')}>
   <div class="side-panel-clip">
     <div class="side-panel-inner">
+      <!-- La salida hacia el listado completo de la sección. Va arriba del
+           todo porque es el movimiento más grande que ofrece el cajón:
+           salir de este artículo y ver todo lo que hay. -->
+      <a class="side-back" href={`/${lang}/${section}/`}>
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path
+            d="M13 8H3.5M7.5 4 3.5 8l4 4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        {t(lang, `section.${section}.title` as 'section.blog.title')}
+      </a>
+
       <ul class="side-groups" id="side-panel-list">
         {
           groups.map((group, i) => (
-            <li class="side-group">
-              <button
-                type="button"
-                class="side-group-name"
-                aria-expanded="true"
-                aria-controls={`side-group-${i}`}
-              >
-                <span>{group.label}</span>
-                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  <path
-                    d="M3.75 9.75 8 5.5l4.25 4.25"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+            <li class:list={['side-group', { 'side-group-plain': !group.label }]}>
+              {group.label && (
+                <button
+                  type="button"
+                  class="side-group-name"
+                  aria-expanded="true"
+                  aria-controls={`side-group-${i}`}
+                >
+                  <span>{group.label}</span>
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path
+                      d="M3.75 9.75 8 5.5l4.25 4.25"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              )}
 
               <div class="side-group-body" id={`side-group-${i}`}>
                 <ul class="side-items">
@@ -69,7 +91,12 @@ const groups =
                     const href = linkFor(entry.id);
                     return (
                       <li>
-                        <a href={href} aria-current={href === current ? 'page' : undefined}>
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener"
+                          aria-current={href === current ? 'page' : undefined}
+                        >
                           {entry.data.title}
                         </a>
                       </li>

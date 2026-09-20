@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import SideNav from '../../../components/SideNav.astro';
 import { LANGS, SECTIONS, t, formatDate, type Lang, type Section } from '../../../i18n/ui';
 
 // Genera una página por cada combinación idioma × sección:
@@ -19,18 +18,16 @@ const posts = (await getCollection(section))
   .filter((entry) => entry.id.startsWith(`${lang}/`) && !entry.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// El panel lateral solo tiene sentido donde hay una jerarquía que mostrar.
-const showAside = section === 'blog' || section === 'papers';
+// Aquí NO hay panel: esta página ya es el índice de la sección. El cajón
+// del índice solo aparece dentro de un artículo, donde sirve para saltar
+// al siguiente.
 
 const title = t(lang, `section.${section}.title` as 'section.blog.title');
 const description = t(lang, `section.${section}.desc` as 'section.blog.desc');
 ---
 
 <BaseLayout lang={lang} title={title} description={description}>
-  <div class:list={['with-aside', { 'no-aside': !showAside }]}>
-    {showAside && <SideNav lang={lang} section={section} />}
-
-    <div class="with-aside-main">
+  <div class="wrap">
       <div class="page-head">
         <h1>{title}</h1>
         <p>{description}</p>
@@ -61,6 +58,5 @@ const description = t(lang, `section.${section}.desc` as 'section.blog.desc');
           </ul>
         )
       }
-    </div>
   </div>
 </BaseLayout>
