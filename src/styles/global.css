@@ -1075,6 +1075,66 @@ main {
   }
 }
 
+/* ---------- La banda de cabecera de cada sección ----------
+   Va a sangre, de borde a borde de la ventana, aunque viva dentro de
+   `main`, que tiene su propio relleno. De ahí el ancho de ventana y el
+   margen negativo que lo compensa. --------------------------------- */
+
+.section-hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: -2rem;
+  /* Aire antes del primer artículo. Al valor de aquí hay que sumarle el
+     relleno superior de la primera ficha (1.15rem), que ya separa por su
+     cuenta: por eso este margen es menor de lo que parece necesario. */
+  margin-bottom: 1.5rem;
+  min-height: clamp(8.5rem, 15vw, 12rem);
+  display: grid;
+  place-items: center;
+  padding: 2.2rem 1.5rem;
+  background: center / cover no-repeat;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Un velo oscuro: el dibujo va de azul profundo a aguamarina claro, y
+   sin él el texto blanco se perdería en la mitad clara. */
+.section-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 20, 30, 0.38);
+}
+
+.section-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 44rem;
+}
+
+.section-hero h1 {
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.section-hero p {
+  margin: 0;
+  max-width: 62ch;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.section-hero.hero-blog {
+  background-image: url('/banner-blog.svg');
+}
+
+.section-hero.hero-papers {
+  background-image: url('/banner-papers.svg');
+}
+
 /* ---------- Rejilla de secciones (portada) ---------- */
 
 .eyebrow {
@@ -1636,7 +1696,7 @@ main {
   /* Justo el respiro necesario: el rótulo se lee como cabecera por su
      tamaño y por no llevar barra de color, no por la distancia. */
   margin: 0 0 0.7rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -1674,7 +1734,7 @@ main {
   cursor: pointer;
   color: var(--text);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: var(--weight-h1);
   letter-spacing: -0.02em;
 }
@@ -1747,9 +1807,9 @@ main {
   display: block;
   color: var(--text);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: var(--weight-nav);
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .side-items a:hover {
@@ -1781,7 +1841,7 @@ main {
 
 .side-soon {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: var(--weight-nav);
   font-style: italic;
   opacity: 0.55;
@@ -1796,7 +1856,7 @@ main {
 /* Rama todavía sin artículos: se anuncia, no se esconde. */
 .side-soon {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: var(--weight-nav);
   font-style: italic;
   opacity: 0.55;

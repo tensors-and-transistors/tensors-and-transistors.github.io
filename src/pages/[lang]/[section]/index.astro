@@ -27,13 +27,17 @@ const description = t(lang, `section.${section}.desc` as 'section.blog.desc');
 ---
 
 <BaseLayout lang={lang} title={title} description={description}>
+  <!-- La banda de cabecera: el mismo dibujo que la tarjeta de esta
+       sección en la portada, redibujado para una franja ancha. El título
+       vive dentro, no debajo: la banda ES la cabecera de la sección. -->
+  <header class:list={['section-hero', `hero-${section}`]}>
+    <div class="section-hero-inner">
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  </header>
+
   <div class="wrap">
-      <div class="page-head">
-        <h1>{title}</h1>
-        <p>{description}</p>
-      </div>
-
-
       {
         posts.length === 0 ? (
           <p class="empty">{t(lang, 'list.empty')}</p>

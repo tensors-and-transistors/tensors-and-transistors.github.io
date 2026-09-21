@@ -166,6 +166,15 @@ function write(name, contents) {
   console.log(`${name}: ${(contents.length / 1024).toFixed(0)} KB`);
 }
 
+/* Las bandas de cabecera de las secciones: el MISMO campo y la misma
+   fase que la tarjeta de su sección en la portada, pero dibujado para
+   una franja ancha. Estirar la tarjeta convertiría los píxeles en
+   rectángulos; redibujarla los mantiene cuadrados. */
+const BANNER_COLS = 176;
+const BANNER_ROWS = 24;
+
 write('mosaic.svg', svg);
 write('card-blog.svg', pixelField(ART_COLS, ART_ROWS, 0.4));
 write('card-papers.svg', pixelField(ART_COLS, ART_ROWS, 3.9));
+write('banner-blog.svg', pixelField(BANNER_COLS, BANNER_ROWS, 0.4));
+write('banner-papers.svg', pixelField(BANNER_COLS, BANNER_ROWS, 3.9));
